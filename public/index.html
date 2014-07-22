@@ -1,37 +1,74 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <!-- 1. Load platform.js for polyfill support. -->
-    <script src="bower_components/platform/platform.js"></script>
+	<head>
+		<!-- 1. Load platform.js for polyfill support. -->
+		<script src="bower_components/platform/platform.js"></script>
 
-    <!-- 2. Use an HTML Import to bring in the element. -->
-    <link rel="import" href="bower_components/core-ajax/core-ajax.html">
-	<link rel="stylesheet" href="bower_components/weather-icons/css/weather-icons.min.css">
-
-  </head>
-  <body>
-    <!-- 3. Declare the element. Configure using its attributes. -->
-    <core-ajax url="http://example.com/json"
-               handleAs="json"></core-ajax>
+		<!-- 2. Use an HTML Import to bring in the element. -->
+		<link rel="import" href="bower_components/core-ajax/core-ajax.html">
+		<link rel="import" href="bower_components/paper-tabs/paper-tabs.html">
+		<link rel="import" href="bower_components/core-animated-pages/core-animated-pages.html">
+		<link rel="import" href="bower_components/core-animated-pages/transitions/slide-down.html">
+		<link rel="import" href="bower_components/core-animated-pages/transitions/slide-up.html">
+		<link rel="import" href="bower_components/font-roboto/roboto.html">
 
 
+		<link rel="stylesheet" href="bower_components/weather-icons/css/weather-icons.min.css">
+		<link rel="stylesheet" href="style.css">
 
-	<i class="wi wi-day-lightning"></i>
+	</head>
+	<body>
+		<!-- 3. Declare the element. Configure using its attributes. -->
+		<core-ajax url="http://example.com/json"
+		handleAs="json"></core-ajax>
 
 
 
-    <script>
-      // Wait for 'polymer-ready'. Ensures the element is upgraded.
-      window.addEventListener('polymer-ready', function(e) {
-        var ajax = document.querySelector('core-ajax');
+		<core-animated-pages onclick="stuff();" transitions="slide-down slide-up " >
+	    <section id="menu">
+			<div style="position:absolute;left:25%;width:50%;" slide-down>
+			<paper-tabs selected="0" class="transparent-teal" role="tablist">
+				<paper-tab role="tab" class="core-selected" active="">Väder</paper-tab>
+				<paper-tab role="tab" class="">Kalender</paper-tab>
+				<paper-tab role="tab" class="">Nyheter</paper-tab>
+			</paper-tabs>
+			</div>
+		</section>
 
-        // Respond to events it fires.
-        ajax.addEventListener('core-response', function(e) {
-          console.log(this.response);
-        });
+	    <section id="empty">
+			<div slide-up></div>
+		</section>
+		</core-animated-pages>
 
-        ajax.go(); // Call its API methods.
-      });
-    </script>
-  </body>
+		<core-button onclick="stuff();" style="color:#fff;">hide/show menu</core-button>
+
+		<i class="wi wi-day-lightning"></i>
+
+
+
+		<script>
+
+			function stuff() {
+				var p = document.querySelector('core-animated-pages');
+				if(p.selected === 1){
+					p.selected = 0;
+					return;
+				}
+				p.selected = 1;
+				console.log(p.selected);
+			}
+
+			// Wait for 'polymer-ready'. Ensures the element is upgraded.
+			window.addEventListener('polymer-ready', function(e) {
+				var ajax = document.querySelector('core-ajax');
+
+				// Respond to events it fires.
+				ajax.addEventListener('core-response', function(e) {
+					console.log(this.response);
+				});
+
+				<!--ajax.go(); // Call its API methods.-->
+			});
+		</script>
+	</body>
 </html>
