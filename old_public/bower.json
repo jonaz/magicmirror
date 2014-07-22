@@ -1,0 +1,16 @@
+{
+  "name": "RequireJS Starter",
+  "version": "1.0.0",
+  "dependencies": {
+    "requirejs": "latest",
+    "jquery": "latest",
+    "backbone": "latest",
+    "underscore": "latest",
+    "bootstrap": "latest",
+    "require-handlebars-plugin": "latest",
+    "toastr": "latest",
+    "d3": "latest",
+    "weather-icons": "latest",
+    "moment": "~2.7.0"
+  }
+}

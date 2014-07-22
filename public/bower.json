@@ -1,0 +1,22 @@
+{
+  "name": "magicMirror",
+  "version": "0.0.1",
+  "authors": [
+    "jonaz <jonas.falck@gmail.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#latest",
+    "core-elements": "Polymer/core-elements#latest",
+    "paper-elements": "Polymer/paper-elements#latest",
+    "weather-icons": "latest"
+  }
+}
