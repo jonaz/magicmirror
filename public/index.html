@@ -5,12 +5,9 @@
 		<script src="bower_components/platform/platform.js"></script>
 
 		<!-- 2. Use an HTML Import to bring in the element. -->
-		<link rel="import" href="bower_components/core-ajax/core-ajax.html">
-		<link rel="import" href="bower_components/paper-tabs/paper-tabs.html">
-		<link rel="import" href="bower_components/core-animated-pages/core-animated-pages.html">
-		<link rel="import" href="bower_components/core-animated-pages/transitions/slide-down.html">
-		<link rel="import" href="bower_components/core-animated-pages/transitions/slide-up.html">
-		<link rel="import" href="bower_components/font-roboto/roboto.html">
+		<!--<link rel="import" href="bower_components/core-ajax/core-ajax.html">-->
+
+		<link rel="import" href="elements/mirror-app.html">
 
 
 		<link rel="stylesheet" href="bower_components/weather-icons/css/weather-icons.min.css">
@@ -19,56 +16,33 @@
 	</head>
 	<body>
 		<!-- 3. Declare the element. Configure using its attributes. -->
-		<core-ajax url="http://example.com/json"
-		handleAs="json"></core-ajax>
+		<!--<core-ajax url="http://example.com/json" handleAs="json"></core-ajax>-->
 
 
-
-		<core-animated-pages onclick="stuff();" transitions="slide-down slide-up " >
-	    <section id="menu">
-			<div style="position:absolute;left:25%;width:50%;" slide-down>
-			<paper-tabs selected="0" class="transparent-teal" role="tablist">
-				<paper-tab role="tab" class="core-selected" active="">Väder</paper-tab>
-				<paper-tab role="tab" class="">Kalender</paper-tab>
-				<paper-tab role="tab" class="">Nyheter</paper-tab>
-			</paper-tabs>
-			</div>
-		</section>
-
-	    <section id="empty">
-			<div slide-up></div>
-		</section>
-		</core-animated-pages>
-
-		<core-button onclick="stuff();" style="color:#fff;">hide/show menu</core-button>
-
-		<i class="wi wi-day-lightning"></i>
+		<mirror-app></mirror-app>
 
 
+		<!--<script>-->
 
-		<script>
+			<!--function stuff() {-->
+				<!--var p = document.querySelector('core-animated-pages');-->
+				<!--if(p.selected === 1){-->
+					<!--p.selected = 0;-->
+					<!--return;-->
+				<!--}-->
+				<!--p.selected = 1;-->
+				<!--console.log(p.selected);-->
+			<!--}-->
 
-			function stuff() {
-				var p = document.querySelector('core-animated-pages');
-				if(p.selected === 1){
-					p.selected = 0;
-					return;
-				}
-				p.selected = 1;
-				console.log(p.selected);
-			}
+			<!--window.addEventListener('polymer-ready', function(e) {-->
+				<!--var ajax = document.querySelector('core-ajax');-->
 
-			// Wait for 'polymer-ready'. Ensures the element is upgraded.
-			window.addEventListener('polymer-ready', function(e) {
-				var ajax = document.querySelector('core-ajax');
-
-				// Respond to events it fires.
-				ajax.addEventListener('core-response', function(e) {
-					console.log(this.response);
-				});
+				<!--ajax.addEventListener('core-response', function(e) {-->
+					<!--console.log(this.response);-->
+				<!--});-->
 
 				<!--ajax.go(); // Call its API methods.-->
-			});
-		</script>
+			<!--});-->
+		<!--</script>-->
 	</body>
 </html>
