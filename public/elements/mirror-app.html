@@ -10,34 +10,38 @@
   <template>
   <link rel="stylesheet" href="../style.css">
 
-  <core-animated-pages selected={{showmenu}} transitions="slide-down slide-up " >
+  <core-animated-pages selected={{showmenu}} transitions="slide-down" >
 	    <section id="empty">
-			<div slide-up></div>
 		</section>
 	    <section id="menu">
-			<div style="position:relative;left:25%;width:50%;height:1920px;" slide-down>
-				<paper-tabs selected="{{page}}" class="transparent-teal" role="tablist" id="tabsMenu">
-					<paper-tab role="tab" class="" active="">Väder</paper-tab>
-					<paper-tab role="tab" class="">Kalender</paper-tab>
-					<paper-tab role="tab" class="">Nyheter</paper-tab>
-				</paper-tabs>
-				<core-animated-pages transitions="slide-from-right" selected="{{page}}" selectedindex="0" >
-					<section id="weather">
-						<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Väder</div>
-					</section>
-					<section id="calendar">
-						<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Kalender</div>
-					</section>
-					<section id="news">
-						<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Nyheter</div>
-					</section>
-				</core-animated-pages>
+			<div slide-down style="position:relative;height:1920px;">
+				<div style="position:relative;left:25%;width:50%;" >
+					<paper-tabs selected="{{page}}" class="transparent-teal" role="tablist" id="tabsMenu">
+						<paper-tab role="tab" class="" active="">Väder</paper-tab>
+						<paper-tab role="tab" class="">Kalender</paper-tab>
+						<paper-tab role="tab" class="">Nyheter</paper-tab>
+					</paper-tabs>
+				</div>
+					<core-animated-pages transitions="slide-from-right" selected="{{page}}" selectedindex="0" >
+						<section id="weather">
+							<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Väder</div>
+						</section>
+						<section id="calendar">
+							<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Kalender</div>
+						</section>
+						<section id="news">
+							<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Nyheter</div>
+						</section>
+					</core-animated-pages>
 			</div>
 		</section>
 
 		</core-animated-pages>
 
-		<core-button on-tap="{{ toggleMenu }}" style="color:#fff;">hide/show menu</core-button>
+		<div style="top:100px;position:relative;">
+		<div>
+			<core-button on-tap="{{ toggleMenu }}" style="color:#fff;">hide/show menu</core-button>
+		</div>
 
 		<i class="wi wi-day-lightning"></i>
 
@@ -56,6 +60,8 @@
   </template>
   <script>
 
+  (function() {
+
 	Polymer('mirror-app', {
 		selected: 0,
 		showmenu: 0,
@@ -68,7 +74,9 @@
 				}
 			this.showmenu = 1;
 			console.log(this.showmenu);
-        }
-    });
+		}
+	});
+
+})();
 </script>
 </polymer-element>
