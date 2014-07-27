@@ -8,7 +8,9 @@
 
 <polymer-element name="mirror-app">
   <template>
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="mirror-app.css">
+
+  <div style="width:1080px;height:1920px;position:relative;">
 
   <core-animated-pages selected={{showmenu}} transitions="slide-down" >
 	    <section id="empty">
@@ -24,7 +26,7 @@
 				</div>
 					<core-animated-pages transitions="slide-from-right" selected="{{page}}" selectedindex="0" >
 						<section id="weather">
-							<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Väder</div>
+							<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Väder<i class="wi wi-day-lightning"></i></div>
 						</section>
 						<section id="calendar">
 							<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Kalender</div>
@@ -38,13 +40,16 @@
 
 		</core-animated-pages>
 
+
+		<div class="upper_left widget_box" style="border:1px #fff solid;"></div>
+		<div class="upper_right widget_box" style="border:1px #fff solid;"></div>
+		<div class="lower_left widget_box" style="border:1px #fff solid;"></div>
+		<div class="lower_right widget_box" style="border:1px #fff solid;"></div>
 		<div style="top:100px;position:relative;">
-		<div>
 			<core-button on-tap="{{ toggleMenu }}" style="color:#fff;">hide/show menu</core-button>
 		</div>
 
-		<i class="wi wi-day-lightning"></i>
-
+	</div>
 
 
     <!--This is <b>{{owner}}</b>'s age-slider.-->
