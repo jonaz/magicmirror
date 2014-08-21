@@ -1,0 +1,61 @@
+<link rel="import" href="/bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/font-roboto/roboto.html">
+
+
+
+<polymer-element name="weather-widget">
+	<template>
+	<link rel="stylesheet" href="weather-widget.css">
+	<link rel="stylesheet" href="/bower_components/weather-icons/css/weather-icons.min.css">
+
+	<core-ajax auto url="http://www.temperatur.nu/termo/soder/termo.txt" handleAs="text" response="{{currenttemp}}"></core-ajax>
+
+
+	<div>
+		Väder
+		<i class="wi wi-day-lightning" style="font-size:20px;"></i>
+
+
+	</div>
+
+    <!--This is <b>{{owner}}</b>'s age-slider.-->
+    <!--<b>{{name}}</b> lets me borrow it.-->
+    <!--He likes the color <span style="color: {{color}}">{{color}}</span>.-->
+    <!--I am <b>{{age}}</b> years old.-->
+    <!--<p><label for="ageInput">Age:</label>-->
+    <!--<input id="ageInput" type="range"-->
+           <!--value="{{age}}">-->
+    <!--<label for="nameInput">Name:</label>-->
+    <!--<input id="nameInput" value="{{name}}"-->
+           <!--placeholder="Enter name..."></p>-->
+  </template>
+  <script>
+
+  (function() {
+
+	Polymer('weather-widget', {
+		selected: 0,
+		showmenu: 0,
+		page:0,
+		currenttemp:0,
+		currenttempChanged: function(a,b,c){
+			console.log(a);
+			console.log(b);
+			console.log(c);
+			console.log(this.currenttemp);
+		},
+		toggleMenu: function() {
+			console.log("toggleMenu");
+			if(this.showmenu === 1){
+					this.showmenu = 0;
+					return;
+				}
+			this.showmenu = 1;
+			console.log(this.showmenu);
+		}
+	});
+
+})();
+</script>
+</polymer-element>
