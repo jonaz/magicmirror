@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="weather-widget.css">
 	<link rel="stylesheet" href="/bower_components/weather-icons/css/weather-icons.min.css">
 
-	<core-ajax auto url="/api/temp" handleAs="json" response="{{currenttemp}}"></core-ajax>
+	<core-ajax id="ajax" auto url="/api/temp" handleAs="json" response="{{currenttemp}}"></core-ajax>
 
 
 	<div>
@@ -43,6 +43,13 @@
 		currenttempChanged: function(){
 			console.log(this.currenttemp.temp);
 			this.$.temp.innerHTML=this.currenttemp.temp;
+		},
+		ready: function(){
+			this.refreshAjax();
+		},
+		refreshAjax: function(){
+			this.$.ajax.go();
+			this.async(this.refreshAjax,null,900000); //refresh every 15 minutes.
 		},
 		toggleMenu: function() {
 			console.log("toggleMenu");

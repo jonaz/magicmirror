@@ -12,7 +12,7 @@
   <template>
   <link rel="stylesheet" href="mirror-app.css">
 
-  <x-websocket url="ws://localhost:3000/websocket" message="websocketMessage"></x-websocket>
+  <x-websocket url="ws://localhost:3000/websocket" ></x-websocket>
 
 
   <div style="width:1080px;height:1920px;position:relative;">
@@ -76,7 +76,6 @@
 		selected: 0,
 		showmenu: 0,
 		page:0,
-		websocketMessage:0,
 		toggleMenu: function() {
 			console.log("toggleMenu");
 			if(this.showmenu === 1){
@@ -90,6 +89,7 @@
 			console.log(a);
 			console.log(b);
 			console.log(c);
+			this.toggleMenu();
 		},
 		websocketMessageChanged: function(){
 
