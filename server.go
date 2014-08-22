@@ -4,6 +4,7 @@ import (
 	"github.com/go-martini/martini"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 func main() {
@@ -16,14 +17,18 @@ func main() {
 }
 
 //Download temp from temperatur.nu.
-func getTemp() []byte {
+func getTemp() string {
 	resp, err := http.Get("http://www.temperatur.nu/termo/soder/termo.txt")
 	defer resp.Body.Close()
 
 	if err != nil {
-		return []byte("error")
+		return "error"
 	}
-
 	body, err := ioutil.ReadAll(resp.Body)
-	return body
+
+	temp := strings.Split(string(body), ",")
+	temp2 := strings.Split(temp[2], ": ")
+	temp3 := strings.Split(temp2[1], "&")
+
+	return "{\"temp\":" + temp3[0] + "}"
 }
