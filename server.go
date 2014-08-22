@@ -23,8 +23,8 @@ func main() {
 	m.Run()
 }
 
-func testSendWs() {
-	clients.messageOtherClients(&Message{"status", "test", "Left this chat"})
+func testSendWs(p martini.Params) {
+	clients.messageOtherClients(&Message{p["id"], "test", "Left this chat"})
 }
 
 //Download temp from temperatur.nu.

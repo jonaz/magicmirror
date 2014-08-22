@@ -12,11 +12,39 @@
 	<core-ajax id="ajax" auto url="/api/temp" handleAs="json" response="{{currenttemp}}"></core-ajax>
 
 
-	<div>
-		Väder
-		<i class="wi wi-day-lightning" style="font-size:20px;"></i>
-		<span id="temp"></span>
+	<div id="container">
+		<!--Väder-->
+		<!--<i class="wi wi-day-lightning" style="font-size:20px;"></i>-->
+		<!--<span id="temp"></span>-->
 
+		<div class="windsun small dimmed" style="display: block;">
+			<span class="wi wi-strong-wind xdimmed"></span> 1 
+			<span class="wi wi-sunset xdimmed"></span> 20:48
+		</div>
+		<div class="temp" style="display: block;">
+			<span class="icon dimmed wi wi-showers"></span>15.4°
+		</div>
+		<div class="forecast small dimmed" style="display: block;">
+			<table class="forecast-table">
+				<tbody>
+					<tr style="opacity: 1;">
+						<td class="day">Fri</td><td class="icon-small wi-night-clear"></td><td class="temp-max">15.8</td><td class="temp-min">12.6</td>
+					</tr>
+					<tr style="opacity: 0.845;">
+						<td class="day">Sat</td><td class="icon-small wi-night-cloudy"></td><td class="temp-max">16.3</td><td class="temp-min">11.5</td>
+					</tr>
+					<tr style="opacity: 0.69;">
+						<td class="day">Sun</td><td class="icon-small wi-night-cloudy"></td><td class="temp-max">16.8</td><td class="temp-min">10</td>
+					</tr>
+					<tr style="opacity: 0.5349999999999999;">
+						<td class="day">Mon</td><td class="icon-small wi-night-cloudy"></td><td class="temp-max">14</td><td class="temp-min">7.2</td>
+					</tr>
+					<tr style="opacity: 0.3799999999999999;"><td class="day">Tue</td><td class="icon-small wi-night-cloudy"></td><td class="temp-max">18.2</td><td class="temp-min">11.9</td>
+					</tr>
+					<tr style="opacity: 0.2249999999999999;"><td class="day">Wed</td><td class="icon-small wi-night-clear"></td><td class="temp-max">11</td><td class="temp-min">11</td></tr>
+				</tbody>
+			</table>
+		</div>
 
 	</div>
 
