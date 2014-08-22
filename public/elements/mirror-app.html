@@ -6,10 +6,14 @@
 <link rel="import" href="/bower_components/font-roboto/roboto.html">
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="weather-widget.html">
+<link rel="import" href="x-websocket.html">
 
 <polymer-element name="mirror-app">
   <template>
   <link rel="stylesheet" href="mirror-app.css">
+
+  <x-websocket url="ws://localhost:3000/websocket"></x-websocket>
+
 
   <div style="width:1080px;height:1920px;position:relative;">
 

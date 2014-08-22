@@ -10,6 +10,9 @@ import (
 )
 
 func main() {
+
+	clients = newClients()
+
 	m := martini.Classic()
 	m.Get("/", func() string {
 		return "Hello world!"
@@ -20,7 +23,7 @@ func main() {
 }
 
 //Download temp from temperatur.nu.
-func getTemp() string {
+func getTemp() string { // {{{
 	resp, err := http.Get("http://www.temperatur.nu/termo/soder/termo.txt")
 	defer resp.Body.Close()
 
@@ -34,7 +37,7 @@ func getTemp() string {
 	temp3 := strings.Split(temp2[1], "&")
 
 	return "{\"temp\":" + temp3[0] + "}"
-}
+} // }}}
 
 //WEBSOCKETS:
 
