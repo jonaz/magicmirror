@@ -8,19 +8,19 @@
 <link rel="import" href="weather-widget.html">
 <link rel="import" href="x-websocket.html">
 
-<polymer-element name="mirror-app">
+<polymer-element name="mirror-app" on-message="websocketMessage">
   <template>
   <link rel="stylesheet" href="mirror-app.css">
 
-  <x-websocket url="ws://localhost:3000/websocket"></x-websocket>
+  <x-websocket url="ws://localhost:3000/websocket" message="websocketMessage"></x-websocket>
 
 
   <div style="width:1080px;height:1920px;position:relative;">
 
   <core-animated-pages selected={{showmenu}} transitions="slide-down" >
-	    <section id="empty">
+		<section id="empty">
 		</section>
-	    <section id="menu">
+		<section id="menu">
 			<div slide-down style="position:relative;height:1920px;">
 				<div style="position:relative;left:25%;width:50%;" >
 					<paper-tabs selected="{{page}}" class="transparent-teal" role="tablist" id="tabsMenu">
@@ -76,6 +76,7 @@
 		selected: 0,
 		showmenu: 0,
 		page:0,
+		websocketMessage:0,
 		toggleMenu: function() {
 			console.log("toggleMenu");
 			if(this.showmenu === 1){
@@ -84,6 +85,17 @@
 				}
 			this.showmenu = 1;
 			console.log(this.showmenu);
+		},
+		websocketMessage: function(a,b,c){
+			console.log(a);
+			console.log(b);
+			console.log(c);
+		},
+		websocketMessageChanged: function(){
+
+		},
+		ready: function(){
+
 		}
 	});
 

@@ -18,8 +18,13 @@ func main() {
 		return "Hello world!"
 	})
 	m.Get("/api/temp", getTemp)
+	m.Get("/test/:id", testSendWs)
 	m.Get("/websocket", sockets.JSON(Message{}), websocketRoute)
 	m.Run()
+}
+
+func testSendWs() {
+	clients.messageOtherClients(&Message{"status", "test", "Left this chat"})
 }
 
 //Download temp from temperatur.nu.
@@ -74,14 +79,10 @@ func (r *Clients) appendClient(client *Client) {
 }
 
 // Message all the other clients in the same room
-func (r *Clients) messageOtherClients(client *Client, msg *Message) {
+func (r *Clients) messageOtherClients(msg *Message) {
 	r.Lock()
-	msg.From = client.Name
-
 	for _, c := range r.clients {
-		if c != client {
-			c.out <- msg
-		}
+		c.out <- msg
 	}
 	defer r.Unlock()
 }
@@ -116,7 +117,7 @@ func websocketRoute(params martini.Params, receiver <-chan *Message, sender chan
 			// The socket connection is already long gone.
 			// Use the error for statistics etc
 		case msg := <-client.in:
-			clients.messageOtherClients(client, msg)
+			clients.messageOtherClients(msg)
 		case <-client.done:
 			clients.removeClient(client)
 			return 200, "OK"
