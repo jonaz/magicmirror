@@ -9,7 +9,8 @@
 	<link rel="stylesheet" href="weather-widget.css">
 	<link rel="stylesheet" href="/bower_components/weather-icons/css/weather-icons.min.css">
 
-	<core-ajax id="ajax" auto url="/api/temp" handleAs="json" response="{{currenttemp}}"></core-ajax>
+	<core-ajax id="ajaxtemp" auto url="/api/temp" handleAs="json" response="{{ajaxMessage}}"></core-ajax>
+	<core-ajax id="ajaxsunset" auto url="/api/sun/set" handleAs="json" response="{{ajaxMessage}}"></core-ajax>
 
 
 	<div id="container">
@@ -18,11 +19,11 @@
 		<!--<span id="temp"></span>-->
 
 		<div class="windsun small dimmed" style="display: block;">
-			<span class="wi wi-strong-wind xdimmed"></span> 1 
-			<span class="wi wi-sunset xdimmed"></span> 20:48
+			<span class="wi wi-strong-wind xdimmed"></span> 1
+			<span class="wi wi-sunset xdimmed"></span> <span id="sunset"></span>
 		</div>
 		<div class="temp" style="display: block;">
-			<span class="icon dimmed wi wi-showers"></span>15.4°
+			<span class="icon dimmed wi wi-showers"></span><span id="temp">15.4</span>°
 		</div>
 		<div class="forecast small dimmed" style="display: block;">
 			<table class="forecast-table">
@@ -48,16 +49,6 @@
 
 	</div>
 
-    <!--This is <b>{{owner}}</b>'s age-slider.-->
-    <!--<b>{{name}}</b> lets me borrow it.-->
-    <!--He likes the color <span style="color: {{color}}">{{color}}</span>.-->
-    <!--I am <b>{{age}}</b> years old.-->
-    <!--<p><label for="ageInput">Age:</label>-->
-    <!--<input id="ageInput" type="range"-->
-           <!--value="{{age}}">-->
-    <!--<label for="nameInput">Name:</label>-->
-    <!--<input id="nameInput" value="{{name}}"-->
-           <!--placeholder="Enter name..."></p>-->
   </template>
   <script>
 
@@ -67,16 +58,24 @@
 		selected: 0,
 		showmenu: 0,
 		page:0,
-		currenttemp:0,
-		currenttempChanged: function(){
-			console.log(this.currenttemp.temp);
-			this.$.temp.innerHTML=this.currenttemp.temp;
+		ajaxMessage:0,
+		ajaxMessageChanged: function(){
+			switch(this.ajaxMessage.type){
+				case 'temp':
+					this.$.temp.innerHTML=this.ajaxMessage.value;
+					break;
+				case 'sunset':
+					this.$.sunset.innerHTML=this.ajaxMessage.value;
+					break;
+
+			}
 		},
 		ready: function(){
 			this.refreshAjax();
 		},
 		refreshAjax: function(){
-			this.$.ajax.go();
+			this.$.ajaxtemp.go();
+			this.$.ajaxsunset.go();
 			this.async(this.refreshAjax,null,900000); //refresh every 15 minutes.
 		},
 		toggleMenu: function() {

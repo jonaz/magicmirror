@@ -2,11 +2,14 @@ package main
 
 import (
 	"github.com/beatrichartz/martini-sockets"
+	"github.com/cpucycle/astrotime"
 	"github.com/go-martini/martini"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -18,6 +21,7 @@ func main() {
 		return "Hello world!"
 	})
 	m.Get("/api/temp", getTemp)
+	m.Get("/api/sun/:type", getsunsetRise)
 	m.Get("/test/:id", testSendWs)
 	m.Get("/websocket", sockets.JSON(Message{}), websocketRoute)
 	m.Run()
@@ -41,7 +45,32 @@ func getTemp() string { // {{{
 	temp2 := strings.Split(temp[2], ": ")
 	temp3 := strings.Split(temp2[1], "&")
 
-	return "{\"temp\":" + temp3[0] + "}"
+	return "{\"type\":\"temp\",\"value\":" + temp3[0] + "}"
+} // }}}
+
+//sunset/runrise
+func getsunsetRise(p martini.Params) string { // {{{
+
+	var t time.Time
+	switch p["type"] {
+	case "set":
+		t = astrotime.NextSunset(time.Now(), float64(56.87697), float64(-14.80918))
+		break
+	case "rise":
+		t = astrotime.NextSunrise(time.Now(), float64(56.87697), float64(-14.80918))
+		break
+	}
+
+	padHour := ""
+	padMinute := ""
+	if t.Hour() < 10 {
+		padHour = "0"
+	}
+	if t.Minute() < 10 {
+		padMinute = "0"
+	}
+	ti := padHour + strconv.Itoa(t.Hour()) + ":" + padMinute + strconv.Itoa(t.Minute())
+	return "{\"type\":\"sunset\",\"value\":\"" + ti + "\"}"
 } // }}}
 
 //WEBSOCKETS:
