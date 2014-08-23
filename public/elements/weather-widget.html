@@ -4,13 +4,13 @@
 
 
 
-<polymer-element name="weather-widget">
+<polymer-element name="weather-widget" attributes="websocketMessage">
 	<template>
 	<link rel="stylesheet" href="weather-widget.css">
 	<link rel="stylesheet" href="/bower_components/weather-icons/css/weather-icons.min.css">
 
-	<core-ajax id="ajaxtemp" auto url="/api/temp" handleAs="json" response="{{ajaxMessage}}"></core-ajax>
-	<core-ajax id="ajaxsunset" auto url="/api/sun/set" handleAs="json" response="{{ajaxMessage}}"></core-ajax>
+	<!--<core-ajax id="ajaxtemp" auto url="/api/temp" handleAs="json" response="{{ajaxMessage}}"></core-ajax>-->
+	<!--<core-ajax id="ajaxsunset" auto url="/api/sun/set" handleAs="json" response="{{ajaxMessage}}"></core-ajax>-->
 
 
 	<div id="container">
@@ -20,10 +20,11 @@
 
 		<div class="windsun small dimmed" style="display: block;">
 			<span class="wi wi-strong-wind xdimmed"></span> 1
+			<span class="wi wi-sunrise xdimmed"></span> <span id="sunrise"></span>
 			<span class="wi wi-sunset xdimmed"></span> <span id="sunset"></span>
 		</div>
 		<div class="temp" style="display: block;">
-			<span class="icon dimmed wi wi-showers"></span><span id="temp">15.4</span>°
+			<span class="icon dimmed wi wi-showers"></span><span id="temp"></span>°
 		</div>
 		<div class="forecast small dimmed" style="display: block;">
 			<table class="forecast-table">
@@ -58,20 +59,9 @@
 		selected: 0,
 		showmenu: 0,
 		page:0,
-		ajaxMessage:0,
-		ajaxMessageChanged: function(){
-			switch(this.ajaxMessage.type){
-				case 'temp':
-					this.$.temp.innerHTML=this.ajaxMessage.value;
-					break;
-				case 'sunset':
-					this.$.sunset.innerHTML=this.ajaxMessage.value;
-					break;
-
-			}
-		},
+		websocketMessage:{},
 		ready: function(){
-			this.refreshAjax();
+			//this.refreshAjax();
 		},
 		refreshAjax: function(){
 			this.$.ajaxtemp.go();
@@ -86,7 +76,26 @@
 				}
 			this.showmenu = 1;
 			console.log(this.showmenu);
-		}
+		},
+		websocketMessageChanged: function(){
+			switch(this.websocketMessage.type){
+				case 'temp':
+					this.$.temp.innerHTML=this.websocketMessage.data;
+					break;
+				case 'sunset':
+					this.$.sunset.innerHTML=this.websocketMessage.data;
+					break;
+				case 'sunrise':
+					this.$.sunrise.innerHTML=this.websocketMessage.data;
+					break;
+				case 'left':
+					this.page--;
+					break;
+				case 'right':
+					this.page++
+					break;
+			}
+		},
 	});
 
 })();

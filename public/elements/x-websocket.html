@@ -10,11 +10,11 @@
 	<script type="text/javascript">
 		(function() {
 			Polymer("x-websocket", {
-			//	messageChanged: function() {
-			//		console.log("message",this.message);
-			//		this.send(this.message);
+				//messageChanged: function() {
+				//	console.log("message",this.message);
+				//	this.send(this.message);
 				//},
-				//message: '',
+				message: '',
 				/**
 				 * Should both sent and received data be interpreted as json and encoded/decoded ? Defaults to false.
 				 * @public
@@ -127,7 +127,7 @@
 						data = JSON.parse(data);
 					}
 					this.fire("message", { data: data });
-					//this.message = data;
+					this.message = data;
 				},
 				/**
 				 * WebSocket close event handler.

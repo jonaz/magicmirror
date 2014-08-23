@@ -20,15 +20,38 @@ func main() {
 	m.Get("/", func() string {
 		return "Hello world!"
 	})
-	m.Get("/api/temp", getTemp)
-	m.Get("/api/sun/:type", getsunsetRise)
 	m.Get("/test/:id", testSendWs)
 	m.Get("/websocket", sockets.JSON(Message{}), websocketRoute)
+
+	initPeriodicalPush()
+
 	m.Run()
 }
 
+func initPeriodicalPush() {
+	//this runs doPerdoPeriodicalStuff() every 15 minutes!
+	ticker := time.NewTicker(15 * time.Minute)
+	quit := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				doPeriodicalStuff()
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
+}
+
+func doPeriodicalStuff() {
+	clients.messageOtherClients(&Message{"temp", getTemp()})
+	clients.messageOtherClients(&Message{"sunset", getSun("set")})
+	clients.messageOtherClients(&Message{"sunrise", getSun("rise")})
+}
 func testSendWs(p martini.Params) {
-	clients.messageOtherClients(&Message{p["id"], "test", "Left this chat"})
+	clients.messageOtherClients(&Message{p["id"], "Left this chat"})
 }
 
 //Download temp from temperatur.nu.
@@ -45,14 +68,14 @@ func getTemp() string { // {{{
 	temp2 := strings.Split(temp[2], ": ")
 	temp3 := strings.Split(temp2[1], "&")
 
-	return "{\"type\":\"temp\",\"value\":" + temp3[0] + "}"
+	return temp3[0]
 } // }}}
 
 //sunset/runrise
-func getsunsetRise(p martini.Params) string { // {{{
+func getSun(p string) string { // {{{
 
 	var t time.Time
-	switch p["type"] {
+	switch p {
 	case "set":
 		t = astrotime.NextSunset(time.Now(), float64(56.87697), float64(-14.80918))
 		break
@@ -70,7 +93,8 @@ func getsunsetRise(p martini.Params) string { // {{{
 		padMinute = "0"
 	}
 	ti := padHour + strconv.Itoa(t.Hour()) + ":" + padMinute + strconv.Itoa(t.Minute())
-	return "{\"type\":\"sunset\",\"value\":\"" + ti + "\"}"
+	return ti
+	//return "{\"type\":\"sunset\",\"value\":\"" + ti + "\"}"
 } // }}}
 
 //WEBSOCKETS:
@@ -78,9 +102,8 @@ func getsunsetRise(p martini.Params) string { // {{{
 var clients *Clients
 
 type Message struct {
-	Typ  string `json:"typ"`
-	From string `json:"from"`
-	Text string `json:"text"`
+	Type string      `json:"type"`
+	Data interface{} `json:"data"`
 }
 type Clients struct {
 	sync.Mutex
@@ -101,7 +124,7 @@ func (r *Clients) appendClient(client *Client) {
 	r.clients = append(r.clients, client)
 	for _, c := range r.clients {
 		if c != client {
-			c.out <- &Message{"status", client.Name, "Joined this chat"}
+			c.out <- &Message{"status", "Joined this chat"}
 		}
 	}
 	r.Unlock()
@@ -125,7 +148,7 @@ func (r *Clients) removeClient(client *Client) {
 		if c == client {
 			r.clients = append(r.clients[:index], r.clients[(index+1):]...)
 		} else {
-			c.out <- &Message{"status", client.Name, "Left this chat"}
+			c.out <- &Message{"status", "Left this chat"}
 		}
 	}
 }
@@ -136,6 +159,8 @@ func newClients() *Clients {
 func websocketRoute(params martini.Params, receiver <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error) (int, string) {
 	client := &Client{params["clientname"], receiver, sender, done, err, disconnect}
 	clients.appendClient(client)
+
+	doPeriodicalStuff()
 
 	// A single select can be used to do all the messaging
 	for {

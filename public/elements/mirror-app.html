@@ -8,11 +8,11 @@
 <link rel="import" href="weather-widget.html">
 <link rel="import" href="x-websocket.html">
 
-<polymer-element name="mirror-app" on-message="websocketMessage">
+<polymer-element name="mirror-app" >
   <template>
   <link rel="stylesheet" href="mirror-app.css">
 
-  <x-websocket json="true" url="ws://localhost:3000/websocket" ></x-websocket>
+  <x-websocket json="true" url="ws://localhost:3000/websocket" message="{{websocketMessage}}" ></x-websocket>
 
 
   <div style="width:1080px;height:1920px;position:relative;">
@@ -49,7 +49,7 @@
 
 
 		<div class="upper_left widget_box" style="border:1px #fff solid;"></div>
-		<div class="upper_right widget_box" style="border:1px #fff solid;"><weather-widget></weather-widget></div>
+		<div class="upper_right widget_box" style="border:1px #fff solid;"><weather-widget websocketMessage="{{websocketMessage}}"></weather-widget></div>
 		<div class="lower_left widget_box" style="border:1px #fff solid;"></div>
 		<div class="lower_right widget_box" style="border:1px #fff solid;"></div>
 		<div style="top:100px;position:relative;">
@@ -86,8 +86,8 @@
 			this.showmenu = 1;
 			console.log(this.showmenu);
 		},
-		websocketMessage: function(a,b){
-			switch(b.data.typ){
+		websocketMessageChanged: function(a,b){
+			switch(b.type){
 				case 'down':
 					this.showmenu=1;
 					break;
@@ -101,9 +101,6 @@
 					this.page++
 					break;
 			}
-		},
-		websocketMessageChanged: function(){
-
 		},
 		ready: function(){
 
