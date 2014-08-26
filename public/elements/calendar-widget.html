@@ -1,0 +1,69 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/font-roboto/roboto.html">
+
+
+
+<polymer-element name="calendar-widget" attributes="websocketMessage">
+	<template>
+	<link rel="stylesheet" href="calendar-widget.css">
+
+
+	<div id="container">
+		<div class="date small dimmed">Tuesday, August 26 2014</div>
+		<div class="time">22:39<span class="sec">47</span></div>
+		<div class="calendar xxsmall" style="display: block;">
+			<table class="xsmall calendar-table"><tbody><tr style="opacity: 1;"><td class="description">Apple Keynote</td><td class="days dimmed">in 14 days</td></tr><tr style="opacity: 0.8;"><td class="description">Lancering iPhone 6</td><td class="days dimmed">in 23 days</td></tr><tr style="opacity: 0.6000000000000001;"><td class="description">Sinterklaas</td><td class="days dimmed">in 3 months</td></tr><tr style="opacity: 0.4000000000000001;"><td class="description">Kerstmis</td><td class="days dimmed">in 4 months</td></tr><tr style="opacity: 0.20000000000000007;"><td class="description">Oud &amp; Nieuw</td><td class="days dimmed">in 4 months</td></tr></tbody></table></div>
+	</div>
+
+  </template>
+  <script>
+
+  (function() {
+
+	Polymer('calendar-widget', {
+		selected: 0,
+		showmenu: 0,
+		page:0,
+		websocketMessage:{},
+		ready: function(){
+			//this.refreshAjax();
+		},
+		refreshAjax: function(){
+			this.$.ajaxtemp.go();
+			this.$.ajaxsunset.go();
+			this.async(this.refreshAjax,null,900000); //refresh every 15 minutes.
+		},
+		toggleMenu: function() {
+			console.log("toggleMenu");
+			if(this.showmenu === 1){
+					this.showmenu = 0;
+					return;
+				}
+			this.showmenu = 1;
+			console.log(this.showmenu);
+		},
+		websocketMessageChanged: function(){
+			return;
+			switch(this.websocketMessage.type){
+				case 'temp':
+					this.$.temp.innerHTML=this.websocketMessage.data;
+					break;
+				case 'sunset':
+					this.$.sunset.innerHTML=this.websocketMessage.data;
+					break;
+				case 'sunrise':
+					this.$.sunrise.innerHTML=this.websocketMessage.data;
+					break;
+				case 'weather':
+					this.weatherData = this.websocketMessage.data;
+					break;
+				case 'right':
+					this.page++
+					break;
+			}
+		}
+	});
+
+})();
+</script>
+</polymer-element>

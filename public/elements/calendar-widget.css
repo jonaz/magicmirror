@@ -1,0 +1,32 @@
+
+div {
+	/*color:#fff;*/
+	color:#00bcd4;
+	font-size:75px;
+/*letter-spacing:2px;*/
+}
+
+#container{
+	padding:20px;
+text-align:left;
+}
+
+
+.time .sec {
+	font-size: 25px;
+	/*color: #666;*/
+	color:#00bcd4;
+	padding-left: 5px;
+	position: relative;
+	top: -35px;
+}
+.small
+{
+	font-size: 25px;
+	letter-spacing: 0px;
+}
+.xxsmall
+{
+	font-size: 15px;
+	letter-spacing: 0px;
+}
