@@ -1,9 +1,12 @@
 package main
 
 import (
+	//"encoding/json"
+	//"fmt"
 	"github.com/beatrichartz/martini-sockets"
 	"github.com/cpucycle/astrotime"
 	"github.com/go-martini/martini"
+	"github.com/jonaz/gosmhi"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -21,6 +24,7 @@ func main() {
 		return "Hello world!"
 	})
 	m.Get("/test/:id", testSendWs)
+	m.Get("/getsmhi", getSmhi)
 	m.Get("/websocket", sockets.JSON(Message{}), websocketRoute)
 
 	initPeriodicalPush()
@@ -49,6 +53,7 @@ func doPeriodicalStuff() {
 	clients.messageOtherClients(&Message{"temp", getTemp()})
 	clients.messageOtherClients(&Message{"sunset", getSun("set")})
 	clients.messageOtherClients(&Message{"sunrise", getSun("rise")})
+	clients.messageOtherClients(&Message{"weather", getSmhi()})
 }
 func testSendWs(p martini.Params) {
 	clients.messageOtherClients(&Message{p["id"], "Left this chat"})
@@ -96,6 +101,50 @@ func getSun(p string) string { // {{{
 	return ti
 	//return "{\"type\":\"sunset\",\"value\":\"" + ti + "\"}"
 } // }}}
+
+type day struct {
+	Max     float64 `json:"max"`
+	Min     float64 `json:"min"`
+	Day     string  `json:"day"`
+	Weather int     `json:"weather"`
+	Cloud   int     `json:"cloud"`
+}
+
+type response struct {
+	Days    []day   `json:"days"`
+	WindMax float64 `json:"windmax"`
+	WindMin float64 `json:"windmin"`
+	Weather int     `json:"weather"`
+	Cloud   int     `json:"cloud"`
+}
+
+func getSmhi() response {
+
+	days := make([]day, 6)
+
+	resp := response{days, 0, 0, 0, 0}
+
+	smhi := gosmhi.New()
+	smhiResponse := smhi.GetByLatLong("56.8769", "14.8092")
+	today := time.Now()
+
+	resp.WindMin, _ = smhiResponse.GetMinWindByDate(today)
+	resp.WindMax, _ = smhiResponse.GetMaxWindByDate(today)
+	resp.Weather = smhiResponse.GetPrecipitationByHour(today)
+	resp.Cloud = smhiResponse.GetTotalCloudCoverageByHour(today)
+
+	for key, _ := range days {
+		days[key].Day = today.Weekday().String()
+		days[key].Max, _ = smhiResponse.GetMaxTempByDate(today)
+		days[key].Min, _ = smhiResponse.GetMinTempByDate(today)
+		days[key].Weather = smhiResponse.GetPrecipitationByDate(today)
+		days[key].Cloud = smhiResponse.GetTotalCloudCoverageByDate(today)
+		today = today.Add(24 * time.Hour)
+	}
+	//jsonResponse, _ := json.Marshal(resp)
+	return resp
+
+}
 
 //WEBSOCKETS:
 

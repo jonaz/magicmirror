@@ -19,31 +19,63 @@
 		<!--<span id="temp"></span>-->
 
 		<div class="windsun small dimmed" style="display: block;">
-			<span class="wi wi-strong-wind xdimmed"></span> 1
-			<span class="wi wi-sunrise xdimmed"></span> <span id="sunrise"></span>
-			<span class="wi wi-sunset xdimmed"></span> <span id="sunset"></span>
+			<table>
+				<tbody>
+					<tr style="opacity: 1;">
+						<td><span class="wi wi-strong-wind xdimmed"></span></td>
+						<td><span class="wi wi-sunrise xdimmed"></span></td>
+						<td><span class="wi wi-sunset xdimmed"></span></td>
+					</tr>
+					<tr style="opacity: 1;">
+						<td><span id="wind">{{weatherData.windmin}}-{{weatherData.windmax}}</span></span></td>
+						<td><span id="sunrise"></span></span></td>
+						<td><span id="sunset"></span></span></td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 		<div class="temp" style="display: block;">
-			<span class="icon dimmed wi wi-showers"></span><span id="temp"></span>°
+			<span class="icon dimmed wi {{weatherData | formatWeatherIcon}}"></span><span id="temp"></span>°
 		</div>
 		<div class="forecast small dimmed" style="display: block;">
 			<table class="forecast-table">
 				<tbody>
 					<tr style="opacity: 1;">
-						<td class="day">Fri</td><td class="icon-small wi-night-clear"></td><td class="temp-max">15.8</td><td class="temp-min">12.6</td>
+						<td class="day">{{weatherData.days[0].day | formatSubstr3}}</td>
+						<td><span class="icon-small {{weatherData.days[0] | formatWeatherIcon}}"></span></td>
+						<td class="temp-max">{{weatherData.days[0].max}}</td>
+						<td class="temp-min">{{weatherData.days[0].min}}</td>
 					</tr>
 					<tr style="opacity: 0.845;">
-						<td class="day">Sat</td><td class="icon-small wi-night-cloudy"></td><td class="temp-max">16.3</td><td class="temp-min">11.5</td>
+						<td class="day">{{weatherData.days[1].day | formatSubstr3}}</td>
+						<td><span class="icon-small {{weatherData.days[1] | formatWeatherIcon}}"></span></td>
+						<td class="temp-max">{{weatherData.days[1].max}}</td>
+						<td class="temp-min">{{weatherData.days[1].min}}</td>
 					</tr>
 					<tr style="opacity: 0.69;">
-						<td class="day">Sun</td><td class="icon-small wi-night-cloudy"></td><td class="temp-max">16.8</td><td class="temp-min">10</td>
+						<td class="day">{{weatherData.days[2].day | formatSubstr3}}</td>
+						<td><span class="icon-small {{weatherData.days[2] | formatWeatherIcon}}"></span></td>
+						<td class="temp-max">{{weatherData.days[2].max}}</td>
+						<td class="temp-min">{{weatherData.days[2].min}}</td>
 					</tr>
 					<tr style="opacity: 0.5349999999999999;">
-						<td class="day">Mon</td><td class="icon-small wi-night-cloudy"></td><td class="temp-max">14</td><td class="temp-min">7.2</td>
+						<td class="day">{{weatherData.days[3].day | formatSubstr3}}</td>
+						<td><span class="icon-small {{weatherData.days[3] | formatWeatherIcon}}"></span></td>
+						<td class="temp-max">{{weatherData.days[3].max}}</td>
+						<td class="temp-min">{{weatherData.days[3].min}}</td>
 					</tr>
-					<tr style="opacity: 0.3799999999999999;"><td class="day">Tue</td><td class="icon-small wi-night-cloudy"></td><td class="temp-max">18.2</td><td class="temp-min">11.9</td>
+					<tr style="opacity: 0.3799999999999999;">
+						<td class="day">{{weatherData.days[4].day | formatSubstr3}}</td>
+						<td><span class="icon-small {{weatherData.days[4] | formatWeatherIcon}}"></span></td>
+						<td class="temp-max">{{weatherData.days[4].max}}</td>
+						<td class="temp-min">{{weatherData.days[4].min}}</td>
 					</tr>
-					<tr style="opacity: 0.2249999999999999;"><td class="day">Wed</td><td class="icon-small wi-night-clear"></td><td class="temp-max">11</td><td class="temp-min">11</td></tr>
+					<tr style="opacity: 0.2249999999999999;">
+						<td class="day">{{weatherData.days[5].day | formatSubstr3}}</td>
+						<td><span class="icon-small {{weatherData.days[5] | formatWeatherIcon}}"></span></td>
+						<td class="temp-max">{{weatherData.days[5].max}}</td>
+						<td class="temp-min">{{weatherData.days[5].min}}</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>
@@ -88,14 +120,59 @@
 				case 'sunrise':
 					this.$.sunrise.innerHTML=this.websocketMessage.data;
 					break;
-				case 'left':
-					this.page--;
+				case 'weather':
+					this.weatherData = this.websocketMessage.data;
 					break;
 				case 'right':
 					this.page++
 					break;
 			}
 		},
+		formatWeatherIcon:function(data){
+			if(data === undefined){
+				return;
+			}
+
+			console.log(data);
+
+			switch(data.weather){
+				case 0: //no Precipitation
+					if( data.cloud < 4){
+						return 'wi-day-sunny';
+					}
+					if( data.cloud < 8){
+						return 'wi-day-sunny-overcast';
+					}
+					return 'wi-cloudy';
+
+					break;
+				case 1: //snow
+				case 2: //snow and rain
+					if( data.cloud < 4){
+						return 'wi-day-snow';
+					}
+					return 'wi-snow';
+					break;
+				case 3: //rain
+				case 4: //drizzle
+					if( data.cloud < 4){
+						return 'wi-day-rain';
+					}
+					return 'wi-rain';
+					break;
+				case 5: //freezing rain
+				case 6: //freezing drizzle
+					return 'wi-snow';
+					break;
+			}
+
+		},
+		formatSubstr3: function(day){
+			if(day !== undefined){
+				return day.substr(0,3);
+			}
+			return "";
+		}
 	});
 
 })();
