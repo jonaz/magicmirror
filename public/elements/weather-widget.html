@@ -41,37 +41,37 @@
 			<table class="forecast-table">
 				<tbody>
 					<tr style="opacity: 1;">
-						<td class="day">{{weatherData.days[0].day | formatSubstr3}}</td>
+						<td class="day">{{weatherData.days[0].day | formatDay}}</td>
 						<td><span class="icon-small {{weatherData.days[0] | formatWeatherIcon}}"></span></td>
 						<td class="temp-max">{{weatherData.days[0].max}}</td>
 						<td class="temp-min">{{weatherData.days[0].min}}</td>
 					</tr>
 					<tr style="opacity: 0.845;">
-						<td class="day">{{weatherData.days[1].day | formatSubstr3}}</td>
+						<td class="day">{{weatherData.days[1].day | formatDay}}</td>
 						<td><span class="icon-small {{weatherData.days[1] | formatWeatherIcon}}"></span></td>
 						<td class="temp-max">{{weatherData.days[1].max}}</td>
 						<td class="temp-min">{{weatherData.days[1].min}}</td>
 					</tr>
 					<tr style="opacity: 0.69;">
-						<td class="day">{{weatherData.days[2].day | formatSubstr3}}</td>
+						<td class="day">{{weatherData.days[2].day | formatDay}}</td>
 						<td><span class="icon-small {{weatherData.days[2] | formatWeatherIcon}}"></span></td>
 						<td class="temp-max">{{weatherData.days[2].max}}</td>
 						<td class="temp-min">{{weatherData.days[2].min}}</td>
 					</tr>
 					<tr style="opacity: 0.5349999999999999;">
-						<td class="day">{{weatherData.days[3].day | formatSubstr3}}</td>
+						<td class="day">{{weatherData.days[3].day | formatDay}}</td>
 						<td><span class="icon-small {{weatherData.days[3] | formatWeatherIcon}}"></span></td>
 						<td class="temp-max">{{weatherData.days[3].max}}</td>
 						<td class="temp-min">{{weatherData.days[3].min}}</td>
 					</tr>
 					<tr style="opacity: 0.3799999999999999;">
-						<td class="day">{{weatherData.days[4].day | formatSubstr3}}</td>
+						<td class="day">{{weatherData.days[4].day | formatDay}}</td>
 						<td><span class="icon-small {{weatherData.days[4] | formatWeatherIcon}}"></span></td>
 						<td class="temp-max">{{weatherData.days[4].max}}</td>
 						<td class="temp-min">{{weatherData.days[4].min}}</td>
 					</tr>
 					<tr style="opacity: 0.2249999999999999;">
-						<td class="day">{{weatherData.days[5].day | formatSubstr3}}</td>
+						<td class="day">{{weatherData.days[5].day | formatDay}}</td>
 						<td><span class="icon-small {{weatherData.days[5] | formatWeatherIcon}}"></span></td>
 						<td class="temp-max">{{weatherData.days[5].max}}</td>
 						<td class="temp-min">{{weatherData.days[5].min}}</td>
@@ -137,7 +137,7 @@
 
 			switch(data.weather){
 				case 0: //no Precipitation
-					if( data.cloud < 4){
+					if( data.cloud < 5){
 						return 'wi-day-sunny';
 					}
 					if( data.cloud < 8){
@@ -155,7 +155,7 @@
 					break;
 				case 3: //rain
 				case 4: //drizzle
-					if( data.cloud < 4){
+					if( data.cloud < 5){
 						return 'wi-day-rain';
 					}
 					return 'wi-rain';
@@ -167,11 +167,21 @@
 			}
 
 		},
-		formatSubstr3: function(day){
-			if(day !== undefined){
-				return day.substr(0,3);
+		formatDay: function(day){
+			if(day === undefined){
+				return;
 			}
-			return "";
+			day = day.substr(0,3);
+			var weekday = new Array(7);
+			weekday['Mon'] = "Mån";
+			weekday['Tue'] = "Tis";
+			weekday['Wed'] = "Ons";
+			weekday['Thu'] = "Tor";
+			weekday['Fri'] = "Fri";
+			weekday['Sat'] = "Lör";
+			weekday['Sun'] = "Sön";
+
+			return weekday[day];
 		}
 	});
 

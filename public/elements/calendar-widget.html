@@ -9,7 +9,7 @@
 
 
 	<div id="container">
-		<div class="date small dimmed">Tuesday, August 26 2014</div>
+		<div class="date small dimmed">{{time | formatDayName}}, {{time | formatMonth}} {{time |formatDayNumber}} {{time | formatYear}}</div>
 		<div class="time">{{time | parseHHMM}}<span class="sec">{{time | parseSS}}</span></div>
 		<div class="calendar xxsmall" style="display: block;">
 			<table class="xsmall calendar-table">
@@ -83,6 +83,39 @@
 		},
 		parseSS: function(time){
 			return time.getSeconds();
+		},
+		formatDayNumber: function(time){
+			return time.getDate();
+		},
+		formatYear: function(time){
+			return time.getFullYear();
+		},
+		formatDayName: function(time){
+			var weekday = new Array(7);
+			weekday[0]=  "Söndag";
+			weekday[1] = "Måndag";
+			weekday[2] = "Tisdag";
+			weekday[3] = "Onsdag";
+			weekday[4] = "Torsdag";
+			weekday[5] = "Fredag";
+			weekday[6] = "Lördag";
+			return weekday[time.getDay()];
+		},
+		formatMonth: function(time){
+			var month = new Array(12);
+			month[0]=  "Januari";
+			month[1] = "Februari";
+			month[2] = "Mars";
+			month[3] = "April";
+			month[4] = "Maj";
+			month[5] = "Juni";
+			month[6] = "Juli";
+			month[7] = "Augusti";
+			month[8] = "September";
+			month[9] = "Oktober";
+			month[10] = "November";
+			month[11] = "December";
+			return month[time.getMonth()];
 		}
 	});
 
