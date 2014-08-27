@@ -119,14 +119,12 @@ type response struct {
 }
 
 func getSmhi() response {
-
+	//we will get weather for the next 6 days including today.
 	days := make([]day, 6)
-
+	today := time.Now()
 	resp := response{days, 0, 0, 0, 0}
-
 	smhi := gosmhi.New()
 	smhiResponse := smhi.GetByLatLong("56.8769", "14.8092")
-	today := time.Now()
 
 	resp.WindMin, _ = smhiResponse.GetMinWindByDate(today)
 	resp.WindMax, _ = smhiResponse.GetMaxWindByDate(today)
@@ -141,9 +139,7 @@ func getSmhi() response {
 		days[key].Cloud = smhiResponse.GetTotalCloudCoverageByDate(today)
 		today = today.Add(24 * time.Hour)
 	}
-	//jsonResponse, _ := json.Marshal(resp)
 	return resp
-
 }
 
 //WEBSOCKETS:
@@ -179,7 +175,7 @@ func (r *Clients) appendClient(client *Client) {
 	r.Unlock()
 }
 
-// Message all the other clients in the same room
+// Message all the other clients
 func (r *Clients) messageOtherClients(msg *Message) {
 	r.Lock()
 	for _, c := range r.clients {
@@ -188,7 +184,7 @@ func (r *Clients) messageOtherClients(msg *Message) {
 	defer r.Unlock()
 }
 
-// Remove a client from a room
+// Remove a client
 func (r *Clients) removeClient(client *Client) {
 	r.Lock()
 	defer r.Unlock()
@@ -220,6 +216,7 @@ func websocketRoute(params martini.Params, receiver <-chan *Message, sender chan
 			// The socket connection is already long gone.
 			// Use the error for statistics etc
 		case msg := <-client.in:
+			//TODO handle request from websocket frontend here.
 			clients.messageOtherClients(msg)
 		case <-client.done:
 			clients.removeClient(client)
