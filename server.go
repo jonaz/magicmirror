@@ -62,11 +62,11 @@ func testSendWs(p martini.Params) {
 //Download temp from temperatur.nu.
 func getTemp() string { // {{{
 	resp, err := http.Get("http://www.temperatur.nu/termo/soder/termo.txt")
-	defer resp.Body.Close()
 
 	if err != nil {
 		return "error"
 	}
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 
 	temp := strings.Split(string(body), ",")
