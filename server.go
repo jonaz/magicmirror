@@ -102,7 +102,8 @@ func getSun(p string) string { // {{{
 	//return "{\"type\":\"sunset\",\"value\":\"" + ti + "\"}"
 } // }}}
 
-type day struct {
+//Weather from SMHI
+type day struct { // {{{
 	Max     float64 `json:"max"`
 	Min     float64 `json:"min"`
 	Day     string  `json:"day"`
@@ -118,7 +119,7 @@ type response struct {
 	Cloud   int     `json:"cloud"`
 }
 
-func getSmhi() response {
+func getSmhi() response { // {{{
 	//we will get weather for the next 6 days including today.
 	days := make([]day, 6)
 	today := time.Now()
@@ -140,7 +141,15 @@ func getSmhi() response {
 		today = today.Add(24 * time.Hour)
 	}
 	return resp
-}
+} // }}}
+// }}}
+
+//TODO go get code.google.com/p/google-api-go-client/calendar/v3
+//GET https://www.googleapis.com/calendar/v3/calendars/calendarId/events
+// svc, err := calendar.New(client)
+// c, err := svc.Events.List().SingleEvents(true).OrderBy("startTime").Do()
+
+// SORTING example http://play.golang.org/p/zZAsQDCHyy
 
 //WEBSOCKETS:
 
