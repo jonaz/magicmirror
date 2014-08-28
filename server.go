@@ -3,6 +3,7 @@ package main
 import (
 	//"encoding/json"
 	//"fmt"
+	"flag"
 	"github.com/beatrichartz/martini-sockets"
 	"github.com/cpucycle/astrotime"
 	"github.com/go-martini/martini"
@@ -16,6 +17,8 @@ import (
 )
 
 func main() {
+	flag.Parse()
+	initOauth()
 
 	clients = newClients()
 
@@ -26,6 +29,12 @@ func main() {
 	m.Get("/test/:id", testSendWs)
 	m.Get("/getsmhi", getSmhi)
 	m.Get("/websocket", sockets.JSON(Message{}), websocketRoute)
+
+	//OAUTH2
+	m.Get("/oauthsetup", handleSetupOauth)
+	m.Get("/oauthredirect", handleOauthRedirect)
+
+	m.Get("/cal", getEvents)
 
 	initPeriodicalPush()
 
@@ -143,13 +152,6 @@ func getSmhi() response { // {{{
 	return resp
 } // }}}
 // }}}
-
-//TODO go get code.google.com/p/google-api-go-client/calendar/v3
-//GET https://www.googleapis.com/calendar/v3/calendars/calendarId/events
-// svc, err := calendar.New(client)
-// c, err := svc.Events.List().SingleEvents(true).OrderBy("startTime").Do()
-
-// SORTING example http://play.golang.org/p/zZAsQDCHyy
 
 //WEBSOCKETS:
 
