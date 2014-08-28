@@ -81,7 +81,7 @@ func initOauth() {
 		ClientID:     valueOrFileContents(*clientId, *clientIdFile),
 		ClientSecret: valueOrFileContents(*clientSecret, *clientSecretFile),
 		RedirectURL:  "http://localhost:3000/oauthredirect",
-		Scopes:       []string{calendar.CalendarScope},
+		Scopes:       []string{calendar.CalendarReadonlyScope},
 	}
 }
 
