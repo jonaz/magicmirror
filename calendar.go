@@ -43,6 +43,8 @@ func getEvents() string {
 	return buffer.String()
 }
 
+//TODO sort by time http://stackoverflow.com/questions/23121026/sorting-by-time-time-in-golang
+
 var (
 	clientId            = flag.String("clientid", "", "OAuth Client ID.  If non-empty, overrides --clientid_file")
 	clientIdFile        = flag.String("clientid_file", "clientid.ini", "Name of a file containing just the project's OAuth Client ID from https://code.google.com/apis/console/")
