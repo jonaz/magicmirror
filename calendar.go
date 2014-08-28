@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	calendar "code.google.com/p/google-api-go-client/calendar/v3"
 	"encoding/gob"
 	"flag"
@@ -19,31 +18,36 @@ import (
 	"time"
 )
 
-func getEvents() string {
+func getEvents(count int64) []*calendar.Event {
 
 	client, err := getOAuthClient()
 	if err != nil {
 		fmt.Println(err)
-		return ""
+		return nil
 	}
 	svc, err := calendar.New(client)
 	if err != nil {
 		fmt.Println(err)
 	}
 	//c, err := svc.CalendarList.List().Do()
-	c, err := svc.Events.List(*calendarId).SingleEvents(true).OrderBy("startTime").TimeMin("2014-08-28T00:00:00+10:00").MaxResults(20).Do()
+	c, err := svc.Events.List(*calendarId).SingleEvents(true).OrderBy("startTime").TimeMin("2014-08-28T00:00:00+10:00").MaxResults(count).Do()
 	//c, err := svc.Events.List(*calendarId).Do()
 	if err != nil {
 		fmt.Println(err)
 	}
-	var buffer bytes.Buffer
-	for _, val := range c.Items {
-		buffer.WriteString(val.Start.DateTime + " : " + val.Summary + "\n")
-	}
-	return buffer.String()
+	//var buffer bytes.Buffer
+	//for _, val := range c.Items {
+	//buffer.WriteString(val.Start.DateTime + " : " + val.Summary + "\n")
+	//}
+	//return buffer.String()
+	return c.Items
+
+	//2014-08-29T13:00:00+02:00
 }
 
 //TODO sort by time http://stackoverflow.com/questions/23121026/sorting-by-time-time-in-golang
+//TODO fix refresh token with google
+//cannot fetch access token without refresh token.
 
 var (
 	clientId            = flag.String("clientid", "", "OAuth Client ID.  If non-empty, overrides --clientid_file")
@@ -82,6 +86,7 @@ func initOauth() {
 		ClientSecret: valueOrFileContents(*clientSecret, *clientSecretFile),
 		RedirectURL:  "http://localhost:3000/oauthredirect",
 		Scopes:       []string{calendar.CalendarReadonlyScope},
+		AccessType:   "offline",
 	}
 }
 

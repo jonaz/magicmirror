@@ -17,6 +17,7 @@
     "polymer": "Polymer/polymer#latest",
     "core-elements": "Polymer/core-elements#latest",
     "paper-elements": "Polymer/paper-elements#latest",
-    "weather-icons": "latest"
+    "weather-icons": "latest",
+    "moment": "latest"
   }
 }

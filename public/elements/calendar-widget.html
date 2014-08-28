@@ -12,27 +12,31 @@
 		<div class="date small dimmed">{{time | formatDayName}}, {{time | formatMonth}} {{time |formatDayNumber}} {{time | formatYear}}</div>
 		<div class="time">{{time | parseHHMM}}<span class="sec">{{time | parseSS}}</span></div>
 		<div class="calendar xxsmall" style="display: block;">
-			<table class="xsmall calendar-table">
+			<table class="calendar-table">
 				<tbody>
 					<tr style="opacity: 1;">
-						<td class="description">Apple Keynote</td>
-						<td class="days dimmed">in 14 days</td>
+						<td class="description">{{calendarData[0].summary}}</td>
+						<td class="days dimmed">{{calendarData[0].start.dateTime | formatCalendarEventTime}}</td>
 					</tr>
 					<tr style="opacity: 0.8;">
-						<td class="description">Lancering iPhone 6</td>
-						<td class="days dimmed">in 23 days</td>
+						<td class="description">{{calendarData[1].summary}}</td>
+						<td class="days dimmed">{{calendarData[1].start.dateTime | formatCalendarEventTime}}</td>
 					</tr>
 					<tr style="opacity: 0.6000000000000001;">
-						<td class="description">Sinterklaas</td>
-						<td class="days dimmed">in 3 months</td>
+						<td class="description">{{calendarData[2].summary}}</td>
+						<td class="days dimmed">{{calendarData[2].start.dateTime | formatCalendarEventTime}}</td>
 					</tr>
 					<tr style="opacity: 0.4000000000000001;">
-						<td class="description">Kerstmis</td>
-						<td class="days dimmed">in 4 months</td>
+						<td class="description">{{calendarData[3].summary}}</td>
+						<td class="days dimmed">{{calendarData[3].start.dateTime | formatCalendarEventTime}}</td>
 					</tr>
 					<tr style="opacity: 0.20000000000000007;">
-						<td class="description">Oud &amp; Nieuw</td>
-						<td class="days dimmed">in 4 months</td>
+						<td class="description">{{calendarData[4].summary}}</td>
+						<td class="days dimmed">{{calendarData[4].start.dateTime | formatCalendarEventTime}}</td>
+					</tr>
+					<tr style="opacity: 0.20000000000000007;">
+						<td class="description">{{calendarData[5].summary}}</td>
+						<td class="days dimmed">{{calendarData[5].start.dateTime | formatCalendarEventTime}}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -50,22 +54,19 @@
 		//ready: function(){
 			//this.refreshAjax();
 		//},
+		calendarData: null,
 		websocketMessageChanged: function(){
-			return;
 			switch(this.websocketMessage.type){
-				case 'temp':
-					this.$.temp.innerHTML=this.websocketMessage.data;
-					break;
-				case 'sunset':
-					this.$.sunset.innerHTML=this.websocketMessage.data;
-					break;
-				case 'sunrise':
-					this.$.sunrise.innerHTML=this.websocketMessage.data;
-					break;
-				case 'weather':
-					this.weatherData = this.websocketMessage.data;
+				case 'calendarEvents':
+					this.calendarData = this.websocketMessage.data;
 					break;
 			}
+		},
+		formatCalendarEventTime: function(e){
+			//2014-08-29T13:00:00+02:00
+			moment.locale('sv');
+			e = moment(e,"YYYY-MM-DDTHH:mm:ssZ").fromNow();
+			return e;
 		},
 		attached: function() {
 			// when we are inserted into DOM, start watching the time
