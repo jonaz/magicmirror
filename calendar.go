@@ -126,9 +126,10 @@ func waitForAuthCode(config *oauth2.Config) {
 	}
 }
 
-func handleOauthRedirect(req *http.Request) (int, string) {
-	if code := req.FormValue("code"); code != "" {
+func handleOauthRedirect(w http.ResponseWriter, r *http.Request) (int, string) {
+	if code := r.FormValue("code"); code != "" {
 		retriveTokenChannel <- code
+		http.Redirect(w, r, "/", http.StatusFound)
 		return 200, "<h1>Success</h1>Authorized."
 	}
 	return 500, "No code!"
@@ -170,6 +171,7 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 }
 
 func saveToken(file string, token *oauth2.Token) {
+	log.Printf("Saving token to %q token:  %#v ", file, token)
 	f, err := os.Create(file)
 	if err != nil {
 		log.Printf("Warning: failed to cache oauth token: %v", err)
