@@ -1,5 +1,6 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/font-roboto/roboto.html">
+<link rel="import" href="time-ago.html">
 
 
 
@@ -16,27 +17,27 @@
 				<tbody>
 					<tr style="opacity: 1;">
 						<td class="description">{{calendarData[0].summary}}</td>
-						<td class="days dimmed">{{calendarData[0].start.dateTime | formatCalendarEventTime}}</td>
+						<td class="days dimmed"><time-ago time="{{calendarData[0].start.dateTime}}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.8;">
 						<td class="description">{{calendarData[1].summary}}</td>
-						<td class="days dimmed">{{calendarData[1].start.dateTime | formatCalendarEventTime}}</td>
+						<td class="days dimmed"><time-ago time="{{calendarData[1].start.dateTime}}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.6000000000000001;">
 						<td class="description">{{calendarData[2].summary}}</td>
-						<td class="days dimmed">{{calendarData[2].start.dateTime | formatCalendarEventTime}}</td>
+						<td class="days dimmed"><time-ago time="{{calendarData[2].start.dateTime}}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.4000000000000001;">
 						<td class="description">{{calendarData[3].summary}}</td>
-						<td class="days dimmed">{{calendarData[3].start.dateTime | formatCalendarEventTime}}</td>
+						<td class="days dimmed"><time-ago time="{{calendarData[3].start.dateTime}}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.20000000000000007;">
 						<td class="description">{{calendarData[4].summary}}</td>
-						<td class="days dimmed">{{calendarData[4].start.dateTime | formatCalendarEventTime}}</td>
+						<td class="days dimmed"><time-ago time="{{calendarData[4].start.dateTime}}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.20000000000000007;">
 						<td class="description">{{calendarData[5].summary}}</td>
-						<td class="days dimmed">{{calendarData[5].start.dateTime | formatCalendarEventTime}}</td>
+						<td class="days dimmed"><time-ago time="{{calendarData[5].start.dateTime}}"></time-ago></td>
 					</tr>
 				</tbody>
 			</table>
@@ -61,12 +62,6 @@
 					this.calendarData = this.websocketMessage.data;
 					break;
 			}
-		},
-		formatCalendarEventTime: function(e){
-			//2014-08-29T13:00:00+02:00
-			moment.locale('sv');
-			e = moment(e,"YYYY-MM-DDTHH:mm:ssZ").fromNow();
-			return e;
 		},
 		attached: function() {
 			// when we are inserted into DOM, start watching the time

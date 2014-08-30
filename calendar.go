@@ -49,6 +49,22 @@ func getEvents(count int64) []*calendar.Event {
 //TODO fix refresh token with google
 //cannot fetch access token without refresh token.
 
+// implement cache using this:
+
+//type CacherRoundTripper struct{
+//Transport oauth2.Transport
+//}
+
+//func (c *CacherRoundTripper) RoundTrip(req *Request) (*Response, error) {
+//token := getTokenSomehow()
+//c.Transport.SetToken(token)
+//resp, err := c.Transport(req)
+//persistTokenSomehow(c.Transport.Token()) // if token is refreshed
+//}
+
+//t := &CacherRoundTripper{ Transport: conf.NewTransport() }
+//client := http.Client{Transport: t}
+
 var (
 	clientId            = flag.String("clientid", "", "OAuth Client ID.  If non-empty, overrides --clientid_file")
 	clientIdFile        = flag.String("clientid_file", "clientid.ini", "Name of a file containing just the project's OAuth Client ID from https://code.google.com/apis/console/")

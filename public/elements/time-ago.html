@@ -1,0 +1,54 @@
+<script src="/bower_components/moment/min/moment-with-locales.min.js"></script>
+
+<polymer-element name="time-ago" attributes="time refresh delay">
+    <template>
+        <span id="timeago"></span>
+    </template>
+    
+    <script>
+        (function () {
+            'use strict';
+
+            var Timeago = {
+                    getTimeAgoText: function (datetime,format) {
+                        return moment(datetime, this.format).fromNow();
+                    },
+            
+                    refresh: function (element, datetime,format) {
+                        element.innerHTML = this.getTimeAgoText(datetime,format);
+                    }
+                },
+                interval;
+        
+            Polymer('time-ago', {
+                setup: function () {
+                    var datetime = this.time,
+                        element = this.$.timeago,
+						format = this.format;
+        
+                    element.innerHTML = Timeago.getTimeAgoText(this.time,this.format);
+        
+                    if (this.refresh === true) {
+                        if (typeof interval !== 'undefined') {
+                            clearInterval(interval);
+                        }
+
+                        interval = setInterval(function () {
+                            Timeago.refresh(element, datetime,format);
+                        }, this.delay);
+                    }
+                },
+                ready: function() {
+                    this.setup();
+                },
+                timeChanged: function () {
+                    this.setup();
+                },
+                time: '0000-00-00T00:00:00',
+                refresh: true,
+                delay: 60000,
+				format: 'YYYY-MM-DDTHH:mm:ssZ'
+            });
+        })(); 
+    </script>
+</polymer-element>
