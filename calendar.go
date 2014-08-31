@@ -18,6 +18,20 @@ import (
 	"time"
 )
 
+var (
+	clientId         = flag.String("clientid", "", "OAuth Client ID.  If non-empty, overrides --clientid_file")
+	clientIdFile     = flag.String("clientid_file", "clientid.ini", "Name of a file containing just the project's OAuth Client ID from https://code.google.com/apis/console/")
+	clientSecret     = flag.String("secret", "", "OAuth Client Secret.  If non-empty, overrides --secret_file")
+	clientSecretFile = flag.String("secret_file", "clientsecret.ini", "Name of a file containing just the project's OAuth Client Secret from https://code.google.com/apis/console/")
+	clientOptions    *oauth2.Options
+	clientToken      *oauth2.Token
+	calendarId       = flag.String("calendar", "", "fetch from this calendarId")
+)
+
+type CacherRoundTripper struct {
+	Transport *oauth2.Transport
+}
+
 func getEvents(count int64) []*calendar.Event {
 
 	client, err := getOAuthClient()
@@ -30,71 +44,57 @@ func getEvents(count int64) []*calendar.Event {
 		fmt.Println(err)
 	}
 	//c, err := svc.CalendarList.List().Do()
-	c, err := svc.Events.List(*calendarId).SingleEvents(true).OrderBy("startTime").TimeMin("2014-08-28T00:00:00+10:00").MaxResults(count).Do()
+	startTime := time.Now().Format(time.RFC3339)
+	c, err := svc.Events.List(*calendarId).SingleEvents(true).OrderBy("startTime").TimeMin(startTime).MaxResults(count).Do()
 	//c, err := svc.Events.List(*calendarId).Do()
 	if err != nil {
 		fmt.Println(err)
+		return nil
 	}
-	//var buffer bytes.Buffer
-	//for _, val := range c.Items {
-	//buffer.WriteString(val.Start.DateTime + " : " + val.Summary + "\n")
-	//}
-	//return buffer.String()
 	return c.Items
 
-	//2014-08-29T13:00:00+02:00
 }
 
 //TODO sort by time http://stackoverflow.com/questions/23121026/sorting-by-time-time-in-golang
-//TODO fix refresh token with google
-//cannot fetch access token without refresh token.
 
-// implement cache using this:
-
-//type CacherRoundTripper struct{
-//Transport oauth2.Transport
-//}
-
-//func (c *CacherRoundTripper) RoundTrip(req *Request) (*Response, error) {
-//token := getTokenSomehow()
-//c.Transport.SetToken(token)
-//resp, err := c.Transport(req)
-//persistTokenSomehow(c.Transport.Token()) // if token is refreshed
-//}
-
-//t := &CacherRoundTripper{ Transport: conf.NewTransport() }
-//client := http.Client{Transport: t}
-
-var (
-	clientId            = flag.String("clientid", "", "OAuth Client ID.  If non-empty, overrides --clientid_file")
-	clientIdFile        = flag.String("clientid_file", "clientid.ini", "Name of a file containing just the project's OAuth Client ID from https://code.google.com/apis/console/")
-	clientSecret        = flag.String("secret", "", "OAuth Client Secret.  If non-empty, overrides --secret_file")
-	clientSecretFile    = flag.String("secret_file", "clientsecret.ini", "Name of a file containing just the project's OAuth Client Secret from https://code.google.com/apis/console/")
-	retriveTokenChannel chan string
-	clientOptions       *oauth2.Options
-	clientToken         *oauth2.Token
-	calendarId          = flag.String("calendar", "", "fetch from this calendarId")
-)
-
-func getOAuthClient() (*http.Client, error) {
+func (c *CacherRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	var err error
+
+	//Fetch token from file if we need to
 	if clientToken == nil {
 		cacheFile := tokenCacheFile(clientOptions)
 		clientToken, err = tokenFromFile(cacheFile)
-		log.Printf("Using cached token %#v from %q", clientToken, cacheFile)
 		if err != nil {
 			return nil, fmt.Errorf("Cannot find file: %q", cacheFile)
 		}
+		log.Printf("Using cached token %#v from %q", clientToken, cacheFile)
 	}
+
+	c.Transport.SetToken(clientToken)
+	oldToken := c.Transport.Token()
+
+	resp, err := c.Transport.RoundTrip(req)
+
+	newToken := c.Transport.Token()
+	if oldToken.AccessToken != newToken.AccessToken {
+		cacheFile := tokenCacheFile(clientOptions)
+		saveToken(cacheFile, newToken)
+	}
+
+	return resp, err
+}
+
+func getOAuthClient() (*http.Client, error) {
+	var err error
 
 	config, err := google.NewConfig(clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	t := config.NewTransport()
-	t.SetToken(clientToken)
+	t := &CacherRoundTripper{Transport: config.NewTransport()}
 
-	return &http.Client{Transport: t}, nil
+	client := &http.Client{Transport: t}
+	return client, nil
 }
 func initOauth() {
 	clientOptions = &oauth2.Options{
@@ -107,48 +107,39 @@ func initOauth() {
 }
 
 func handleSetupOauth(w http.ResponseWriter, r *http.Request) {
-
-	retriveTokenChannel = make(chan string)
 	if *clientId == "" || *clientSecret == "" {
 		fmt.Println("--clientid and --secret must be provided!")
 		return
 	}
 
-	// Your credentials should be obtained from the Google
-	// Developer Console (https://console.developers.google.com).
 	config, err := google.NewConfig(clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	url := config.AuthCodeURL("")
-	fmt.Printf("Visit the URL for the auth dialog: %v", url)
 	http.Redirect(w, r, url, http.StatusFound)
-	go waitForAuthCode(config)
-}
-
-func waitForAuthCode(config *oauth2.Config) {
-	select {
-	case authorizationCode := <-retriveTokenChannel:
-		t, err := config.NewTransportWithCode(authorizationCode)
-		if err != nil {
-			log.Fatal(err)
-		}
-		cacheFile := tokenCacheFile(clientOptions)
-		saveToken(cacheFile, t.Token())
-	case <-time.After(time.Second * 30):
-		fmt.Print("waiting for code timed out")
-		return
-	}
 }
 
 func handleOauthRedirect(w http.ResponseWriter, r *http.Request) (int, string) {
-	if code := r.FormValue("code"); code != "" {
-		retriveTokenChannel <- code
-		http.Redirect(w, r, "/", http.StatusFound)
-		return 200, "<h1>Success</h1>Authorized."
+	code := r.FormValue("code")
+	if code == "" {
+		return 500, "No code!"
 	}
-	return 500, "No code!"
+
+	config, err := google.NewConfig(clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	t, err := config.NewTransportWithCode(code)
+	if err != nil {
+		log.Fatal(err)
+	}
+	cacheFile := tokenCacheFile(clientOptions)
+	saveToken(cacheFile, t.Token())
+
+	http.Redirect(w, r, "/", http.StatusFound)
+	return 200, "<h1>Success</h1>Authorized."
 }
 
 func valueOrFileContents(value string, filename string) string {
@@ -174,19 +165,19 @@ func tokenCacheFile(config *oauth2.Options) string {
 }
 
 func tokenFromFile(file string) (*oauth2.Token, error) {
-	//if !*cacheToken {
-	//return nil, errors.New("--cachetoken is false")
-	//}
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
+
 	t := new(oauth2.Token)
 	err = gob.NewDecoder(f).Decode(t)
 	return t, err
 }
 
 func saveToken(file string, token *oauth2.Token) {
+	clientToken = token
 	log.Printf("Saving token to %q token:  %#v ", file, token)
 	f, err := os.Create(file)
 	if err != nil {
