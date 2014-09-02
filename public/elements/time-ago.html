@@ -4,7 +4,6 @@
     <template>
         <span id="timeago"></span>
     </template>
-    
     <script>
         (function () {
             'use strict';
@@ -13,22 +12,21 @@
                     getTimeAgoText: function (datetime,format) {
                         return moment(datetime, this.format).fromNow();
                     },
-            
                     refresh: function (element, datetime,format) {
                         element.innerHTML = this.getTimeAgoText(datetime,format);
                     }
                 },
                 interval;
-        
+
             Polymer('time-ago', {
                 setup: function () {
                     var datetime = this.time,
                         element = this.$.timeago,
 						format = this.format;
-        
+
                     element.innerHTML = Timeago.getTimeAgoText(this.time,this.format);
-        
-                    if (this.refresh === true) {
+
+					if (this.refresh === true) {
                         if (typeof interval !== 'undefined') {
                             clearInterval(interval);
                         }
@@ -49,6 +47,6 @@
                 delay: 60000,
 				format: 'YYYY-MM-DDTHH:mm:ssZ'
             });
-        })(); 
+        })();
     </script>
 </polymer-element>
