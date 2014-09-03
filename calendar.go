@@ -67,18 +67,17 @@ func (c *CacherRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 		if err != nil {
 			return nil, fmt.Errorf("Cannot find file: %q", cacheFile)
 		}
-		log.Printf("Using cached token %#v from %q", clientToken, cacheFile)
+		log.Printf("Using cached token %+v from %q", clientToken, cacheFile)
 	}
 
 	c.Transport.SetToken(clientToken)
-	oldToken := c.Transport.Token()
-
 	resp, err := c.Transport.RoundTrip(req)
 
 	newToken := c.Transport.Token()
-	if oldToken.AccessToken != newToken.AccessToken {
+	if clientToken.AccessToken != newToken.AccessToken {
 		cacheFile := tokenCacheFile(clientOptions)
 		saveToken(cacheFile, newToken)
+		//resp, err = c.Transport.RoundTrip(req)
 	}
 
 	return resp, err
@@ -178,7 +177,7 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 
 func saveToken(file string, token *oauth2.Token) {
 	clientToken = token
-	log.Printf("Saving token to %q token:  %#v ", file, token)
+	log.Printf("Saving token to %q token:  %+v ", file, token)
 	f, err := os.Create(file)
 	if err != nil {
 		log.Printf("Warning: failed to cache oauth token: %v", err)
