@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-martini/martini"
+	"github.com/gorilla/websocket"
 	"sync"
 )
 
@@ -57,9 +58,16 @@ func (r *Clients) removeClient(client *Client) {
 	for index, c := range r.clients {
 		if c == client {
 			r.clients = append(r.clients[:index], r.clients[(index+1):]...)
-		} else {
-			c.out <- &Message{"status", "Left this chat"}
 		}
+	}
+}
+
+// Remove a client
+func (r *Clients) disconnectAll() {
+	r.Lock()
+	defer r.Unlock()
+	for _, c := range r.clients {
+		c.disconnect <- websocket.CloseGoingAway
 	}
 }
 

@@ -4,12 +4,15 @@ import (
 	//"encoding/json"
 	//"fmt"
 	"flag"
+	"fmt"
 	"github.com/beatrichartz/martini-sockets"
 	"github.com/cpucycle/astrotime"
 	"github.com/go-martini/martini"
 	"github.com/jonaz/gosmhi"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +21,17 @@ import (
 func main() {
 	flag.Parse()
 	initOauth()
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		for sig := range c {
+			fmt.Println("shutting down", sig)
+			clients.disconnectAll()
+			//TODO implement waitgroup for each websocketRoute instead of this sleep!!
+			time.Sleep(2 * time.Second)
+			os.Exit(1)
+		}
+	}()
 
 	clients = newClients()
 

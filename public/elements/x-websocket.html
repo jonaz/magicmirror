@@ -8,7 +8,10 @@
 		</style>
 	</template>
 	<script type="text/javascript">
+		/* jshint newcap: false */
+		/*global Polymer */
 		(function() {
+			'use strict';
 			Polymer("x-websocket", {
 				//messageChanged: function() {
 				//	console.log("message",this.message);
@@ -108,6 +111,9 @@
 				 * @private
 				 */
 				_onwsopen: function() {
+					if (typeof this.interval !== 'undefined') {
+						clearInterval(this.interval);
+					}
 					this.fire("open");
 				},
 				/**
@@ -133,9 +139,20 @@
 				 * WebSocket close event handler.
 				 * @private
 				 */
-				_onwsclose: function(event) {
-					this.fire("error", { code: event.code, reason: event.reason });
+				_onwsclose: function(e) {
+					this._ws = null;
+					this.fire("error", { code: e.code, reason: e.reason });
+					if(e.code === 1001){
+						this._reconnect();
+					}
 				},
+				_reconnect: function(){
+					var self = this;
+					this.interval = setInterval(function(){
+						self._connect();
+					},5000);
+
+				}
 			});
 		})();
 	</script>
