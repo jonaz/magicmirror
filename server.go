@@ -15,20 +15,38 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 )
+
+var WaitGroup sync.WaitGroup
+var Shutdown = make(chan bool)
+
+func SetupShutdownChannel() {
+	go shutdownRoutine()
+}
+
+func shutdownRoutine() {
+	sigchan := make(chan os.Signal, 2)
+	signal.Notify(sigchan, os.Interrupt)
+	signal.Notify(sigchan, syscall.SIGTERM)
+	<-sigchan
+	//send to our shutdown channel where our goroutines listens
+	close(Shutdown)
+}
 
 func main() {
 	flag.Parse()
 	initOauth()
-	c := make(chan os.Signal, 1)
+	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
 	go func() {
 		for sig := range c {
 			fmt.Println("shutting down", sig)
 			clients.disconnectAll()
-			//TODO implement waitgroup for each websocketRoute instead of this sleep!!
-			time.Sleep(2 * time.Second)
+			WaitGroup.Wait()
 			os.Exit(1)
 		}
 	}()
@@ -52,6 +70,7 @@ func main() {
 	initPeriodicalPush()
 
 	m.Run()
+
 }
 
 func initPeriodicalPush() {

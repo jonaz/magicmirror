@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-martini/martini"
 	"github.com/gorilla/websocket"
 	"sync"
@@ -75,6 +76,7 @@ func newClients() *Clients {
 	return &Clients{sync.Mutex{}, make([]*Client, 0)}
 }
 func websocketRoute(params martini.Params, receiver <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error) (int, string) {
+	WaitGroup.Add(1)
 	client := &Client{params["clientname"], receiver, sender, done, err, disconnect}
 	clients.appendClient(client)
 
@@ -93,6 +95,8 @@ func websocketRoute(params martini.Params, receiver <-chan *Message, sender chan
 			clients.messageOtherClients(msg)
 		case <-client.done:
 			clients.removeClient(client)
+			fmt.Println("waitgroup DONE")
+			WaitGroup.Done()
 			return 200, "OK"
 		}
 	}
