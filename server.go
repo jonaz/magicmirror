@@ -26,7 +26,7 @@ func main() {
 	m.Get("/", func() string {
 		return "Hello world!"
 	})
-	m.Get("/test/:id", testSendWs)
+	m.Get("/control/:action", sendOnWs)
 	m.Get("/getsmhi", getSmhi)
 	m.Get("/websocket", sockets.JSON(Message{}), websocketRoute)
 
@@ -65,8 +65,8 @@ func doPeriodicalStuff() {
 	clients.messageOtherClients(&Message{"weather", getSmhi()})
 	clients.messageOtherClients(&Message{"calendarEvents", getEvents(6)})
 }
-func testSendWs(p martini.Params) {
-	clients.messageOtherClients(&Message{p["id"], "Left this chat"})
+func sendOnWs(p martini.Params) {
+	clients.messageOtherClients(&Message{p["action"], nil})
 }
 
 //Download temp from temperatur.nu.
