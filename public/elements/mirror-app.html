@@ -59,38 +59,44 @@
 	</div>
 
   </template>
-  <script>
+	<script>
+		/* jshint newcap: false */
+		/*global Polymer */
 
-  (function() {
+		(function() {
+			"use strict";
 
-	Polymer('mirror-app', {
-		selected: 0,
-		showmenu: 0,
-		page:0,
-		toggleMenu: function() {
-			this.showmenu = (this.showmenu) ? 0:1;
-		},
-		websocketMessageChanged: function(a,b){
-			switch(b.type){
-				case 'down':
-					this.showmenu=1;
-					break;
-				case 'up':
-					this.showmenu=0;
-					break;
-				case 'left':
-					this.page--;
-					break;
-				case 'right':
-					this.page++
-					break;
-			}
-		},
-		ready: function(){
+			Polymer('mirror-app', {
+				selected: 0,
+				showmenu: 0,
+				page:0,
+				toggleMenu: function() {
+					this.showmenu = (this.showmenu) ? 0:1;
+				},
+				websocketMessageChanged: function(a,b){
+					switch(b.type){
+						case 'down':
+							this.showmenu=1;
+							break;
+						case 'up':
+							this.showmenu=0;
+							break;
+						case 'left':
+							this.page--;
+							break;
+						case 'right':
+							this.page++;
+							break;
+						case 'reload':
+							window.location.reload(true);
+							break;
+					}
+				},
+				ready: function(){
 
-		}
-	});
+				}
+			});
 
-})();
-</script>
+		})();
+	</script>
 </polymer-element>
