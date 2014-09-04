@@ -26,7 +26,7 @@ func main() {
 
 	m := martini.Classic()
 
-	gracefulShutdown := &GracefulShutdown{timeout: time.Duration(10) * time.Second}
+	gracefulShutdown := NewGracefulShutdown(10 * time.Second)
 	gracefulShutdown.RunOnShutDown(clients.disconnectAll)
 	m.Use(gracefulShutdown.Handler)
 
