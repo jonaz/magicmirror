@@ -10,50 +10,35 @@ import (
 	"github.com/go-martini/martini"
 	"github.com/jonaz/gosmhi"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 )
 
-var WaitGroup sync.WaitGroup
 var Shutdown = make(chan bool)
-
-func SetupShutdownChannel() {
-	go shutdownRoutine()
-}
-
-func shutdownRoutine() {
-	sigchan := make(chan os.Signal, 2)
-	signal.Notify(sigchan, os.Interrupt)
-	signal.Notify(sigchan, syscall.SIGTERM)
-	<-sigchan
-	//send to our shutdown channel where our goroutines listens
-	close(Shutdown)
-}
 
 func main() {
 	flag.Parse()
 	initOauth()
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, syscall.SIGTERM)
-	go func() {
-		for sig := range c {
-			fmt.Println("shutting down", sig)
-			clients.disconnectAll()
-			WaitGroup.Wait()
-			os.Exit(1)
-		}
-	}()
 
 	clients = newClients()
 
 	m := martini.Classic()
+
+	gracefulShutdown := &GracefulShutdown{timeout: time.Duration(10) * time.Second}
+	gracefulShutdown.RunOnShutDown(clients.disconnectAll)
+	m.Use(gracefulShutdown.Handler)
+
+	//limiter := &ConnectionLimit{limit: 2}
+	//m.Use(limiter.Handler)
+
 	m.Get("/", func() string {
 		return "Hello world!"
 	})
@@ -69,7 +54,14 @@ func main() {
 
 	initPeriodicalPush()
 
-	m.Run()
+	go func() {
+		m.Run()
+	}()
+
+	err := gracefulShutdown.WaitForSignal(syscall.SIGTERM, syscall.SIGINT)
+	if err != nil {
+		log.Println(err)
+	}
 
 }
 
@@ -182,3 +174,63 @@ func getSmhi() response { // {{{
 	return resp
 } // }}}
 // }}}
+
+type GracefulShutdown struct {
+	timeout   time.Duration
+	wg        sync.WaitGroup
+	functions []func()
+}
+
+func NewGracefulShutdown(t time.Duration) *GracefulShutdown {
+	return &GracefulShutdown{timeout: t}
+}
+
+func (g *GracefulShutdown) Handler(c martini.Context) {
+	g.wg.Add(1)
+	c.Next()
+	g.wg.Done()
+}
+
+func (g *GracefulShutdown) RunOnShutDown(f func()) error {
+	g.functions = append(g.functions, f)
+	return nil
+}
+func (g *GracefulShutdown) WaitForSignal(signals ...os.Signal) error {
+	sigchan := make(chan os.Signal)
+	signal.Notify(sigchan, signals...)
+	<-sigchan
+
+	log.Println("Waiting for all requests to finish")
+	for _, f := range g.functions {
+		f()
+	}
+
+	waitChan := make(chan struct{})
+	go func() {
+		g.wg.Wait()
+		waitChan <- struct{}{}
+	}()
+
+	select {
+	case <-time.After(g.timeout):
+		return fmt.Errorf("timed out waiting %v for shutdown", g.timeout)
+	case <-waitChan:
+		return nil
+	}
+}
+
+type ConnectionLimit struct {
+	numConnections int32
+	limit          int32
+}
+
+func (c *ConnectionLimit) Handler(ctx martini.Context, rw http.ResponseWriter) {
+	if atomic.AddInt32(&c.numConnections, 1) > c.limit {
+		http.Error(rw, "maximum connections exceeded", http.StatusServiceUnavailable)
+		atomic.AddInt32(&c.numConnections, -1)
+		return
+	}
+
+	ctx.Next()
+	atomic.AddInt32(&c.numConnections, -1)
+}
