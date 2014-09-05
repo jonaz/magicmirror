@@ -59,7 +59,8 @@ func main() {
 
 }
 
-func initPeriodicalPush() {
+// do periodical stuff and push over websocket to all.
+func initPeriodicalPush() { // {{{
 	//this runs doPerdoPeriodicalStuff() every 15 minutes!
 	ticker := time.NewTicker(15 * time.Minute)
 	quit := make(chan struct{})
@@ -74,15 +75,14 @@ func initPeriodicalPush() {
 			}
 		}
 	}()
-}
-
-func doPeriodicalStuff() {
+}                          // }}}
+func doPeriodicalStuff() { // {{{
 	clients.messageOtherClients(&Message{"temp", getTemp()})
 	clients.messageOtherClients(&Message{"sunset", getSun("set")})
 	clients.messageOtherClients(&Message{"sunrise", getSun("rise")})
 	clients.messageOtherClients(&Message{"weather", getSmhi()})
 	clients.messageOtherClients(&Message{"calendarEvents", getEvents(6)})
-}
+} // }}}
 
 //Download temp from temperatur.nu.
 func getTemp() string { // {{{
