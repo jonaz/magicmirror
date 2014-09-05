@@ -17,27 +17,27 @@
 				<tbody>
 					<tr style="opacity: 1;">
 						<td class="description">{{calendarData[0].summary}}</td>
-						<td class="days dimmed"><time-ago time="{{calendarData[0].start.dateTime}}"></time-ago></td>
+						<td class="days dimmed"><time-ago time="{{calendarData[0].start | formatDateTime }}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.8;">
 						<td class="description">{{calendarData[1].summary}}</td>
-						<td class="days dimmed"><time-ago time="{{calendarData[1].start.dateTime}}"></time-ago></td>
+						<td class="days dimmed"><time-ago time="{{calendarData[1].start | formatDateTime }}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.6000000000000001;">
 						<td class="description">{{calendarData[2].summary}}</td>
-						<td class="days dimmed"><time-ago time="{{calendarData[2].start.dateTime}}"></time-ago></td>
+						<td class="days dimmed"><time-ago time="{{calendarData[2].start | formatDateTime }}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.4000000000000001;">
 						<td class="description">{{calendarData[3].summary}}</td>
-						<td class="days dimmed"><time-ago time="{{calendarData[3].start.dateTime}}"></time-ago></td>
+						<td class="days dimmed"><time-ago time="{{calendarData[3].start | formatDateTime }}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.20000000000000007;">
 						<td class="description">{{calendarData[4].summary}}</td>
-						<td class="days dimmed"><time-ago time="{{calendarData[4].start.dateTime}}"></time-ago></td>
+						<td class="days dimmed"><time-ago time="{{calendarData[4].start | formatDateTime }}"></time-ago></td>
 					</tr>
 					<tr style="opacity: 0.20000000000000007;">
 						<td class="description">{{calendarData[5].summary}}</td>
-						<td class="days dimmed"><time-ago time="{{calendarData[5].start.dateTime}}"></time-ago></td>
+						<td class="days dimmed"><time-ago time="{{calendarData[5].start | formatDateTime }}"></time-ago></td>
 					</tr>
 				</tbody>
 			</table>
@@ -60,7 +60,19 @@
 			switch(this.websocketMessage.type){
 				case 'calendarEvents':
 					this.calendarData = this.websocketMessage.data;
+					console.log(this.calendarData);
 					break;
+			}
+		},
+		formatDateTime: function(time){
+			if(!time){
+				return null;
+			}
+			if(time.dateTime){
+				return time.dateTime;
+			}
+			if(time.date){
+				return time.date;
 			}
 		},
 		attached: function() {
