@@ -3,10 +3,6 @@ package main
 import (
 	//"encoding/json"
 	"flag"
-	"github.com/beatrichartz/martini-sockets"
-	"github.com/cpucycle/astrotime"
-	"github.com/go-martini/martini"
-	"github.com/jonaz/gosmhi"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,6 +10,11 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/beatrichartz/martini-sockets"
+	"github.com/cpucycle/astrotime"
+	"github.com/go-martini/martini"
+	"github.com/jonaz/gosmhi"
 )
 
 var Shutdown = make(chan bool)
