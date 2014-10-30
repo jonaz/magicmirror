@@ -1,12 +1,9 @@
 package main
 
 import (
-	calendar "code.google.com/p/google-api-go-client/calendar/v3"
 	"encoding/gob"
 	"flag"
 	"fmt"
-	"github.com/golang/oauth2"
-	"github.com/golang/oauth2/google"
 	"hash/fnv"
 	"io/ioutil"
 	"log"
@@ -16,6 +13,10 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	calendar "code.google.com/p/google-api-go-client/calendar/v3"
+	"github.com/golang/oauth2"
+	"github.com/golang/oauth2/google"
 )
 
 var (
@@ -101,7 +102,6 @@ func initOauth() {
 		ClientSecret: valueOrFileContents(*clientSecret, *clientSecretFile),
 		RedirectURL:  "http://localhost:3000/oauthredirect",
 		Scopes:       []string{calendar.CalendarReadonlyScope},
-		AccessType:   "offline",
 	}
 }
 
@@ -116,7 +116,7 @@ func handleSetupOauth(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	url := config.AuthCodeURL("")
+	url := config.AuthCodeURL("", "offline", "auto")
 	http.Redirect(w, r, url, http.StatusFound)
 }
 
