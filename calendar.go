@@ -15,8 +15,8 @@ import (
 	"time"
 
 	calendar "code.google.com/p/google-api-go-client/calendar/v3"
-	"github.com/golang/oauth2"
-	"github.com/golang/oauth2/google"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 var (
@@ -35,11 +35,14 @@ type CacherRoundTripper struct {
 
 func getEvents(count int64) []*calendar.Event {
 
-	client, err := getOAuthClient()
+	store := &tokenStore{}
+	transport, err := clientOptions.NewTransportFromTokenStore(store)
 	if err != nil {
 		fmt.Println(err)
 		return nil
 	}
+	client := &http.Client{Transport: transport}
+
 	svc, err := calendar.New(client)
 	if err != nil {
 		fmt.Println(err)
@@ -58,50 +61,19 @@ func getEvents(count int64) []*calendar.Event {
 
 //TODO sort by time http://stackoverflow.com/questions/23121026/sorting-by-time-time-in-golang
 
-func (c *CacherRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	var err error
-
-	//Fetch token from file if we need to
-	if clientToken == nil {
-		cacheFile := tokenCacheFile(clientOptions)
-		clientToken, err = tokenFromFile(cacheFile)
-		if err != nil {
-			return nil, fmt.Errorf("Cannot find file: %q", cacheFile)
-		}
-		log.Printf("Using cached token %+v from %q", clientToken, cacheFile)
-	}
-
-	c.Transport.SetToken(clientToken)
-	resp, err := c.Transport.RoundTrip(req)
-
-	newToken := c.Transport.Token()
-	if clientToken.AccessToken != newToken.AccessToken {
-		cacheFile := tokenCacheFile(clientOptions)
-		saveToken(cacheFile, newToken)
-		//resp, err = c.Transport.RoundTrip(req)
-	}
-
-	return resp, err
-}
-
-func getOAuthClient() (*http.Client, error) {
-	var err error
-
-	config, err := google.NewConfig(clientOptions)
-	if err != nil {
-		log.Fatal(err)
-	}
-	t := &CacherRoundTripper{Transport: config.NewTransport()}
-
-	client := &http.Client{Transport: t}
-	return client, nil
-}
 func initOauth() {
-	clientOptions = &oauth2.Options{
-		ClientID:     valueOrFileContents(*clientId, *clientIdFile),
-		ClientSecret: valueOrFileContents(*clientSecret, *clientSecretFile),
-		RedirectURL:  "http://localhost:3000/oauthredirect",
-		Scopes:       []string{calendar.CalendarReadonlyScope},
+	var err error
+	clientOptions, err = oauth2.New(
+		oauth2.Client(valueOrFileContents(*clientId, *clientIdFile), valueOrFileContents(*clientSecret, *clientSecretFile)),
+		oauth2.RedirectURL("http://localhost:3000/oauthredirect"),
+		oauth2.Scope(
+			calendar.CalendarReadonlyScope,
+		),
+		google.Endpoint(),
+	)
+	clientOptions.TokenStore = &tokenStore{}
+	if err != nil {
+		log.Println("err")
 	}
 }
 
@@ -111,12 +83,7 @@ func handleSetupOauth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config, err := google.NewConfig(clientOptions)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	url := config.AuthCodeURL("", "offline", "auto")
+	url := clientOptions.AuthCodeURL("", "offline", "auto")
 	http.Redirect(w, r, url, http.StatusFound)
 }
 
@@ -126,11 +93,7 @@ func handleOauthRedirect(w http.ResponseWriter, r *http.Request) (int, string) {
 		return 500, "No code!"
 	}
 
-	config, err := google.NewConfig(clientOptions)
-	if err != nil {
-		log.Fatal(err)
-	}
-	t, err := config.NewTransportWithCode(code)
+	t, err := clientOptions.NewTransportFromCode(code)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -185,4 +148,28 @@ func saveToken(file string, token *oauth2.Token) {
 	}
 	defer f.Close()
 	gob.NewEncoder(f).Encode(token)
+}
+
+type tokenStore struct {
+}
+
+func (t *tokenStore) WriteToken(token *oauth2.Token) {
+	cacheFile := tokenCacheFile(clientOptions)
+	saveToken(cacheFile, token)
+}
+
+func (t *tokenStore) ReadToken() (*oauth2.Token, error) {
+	////Fetch token from file if we need to
+	if clientToken == nil {
+		cacheFile := tokenCacheFile(clientOptions)
+		var err error
+		clientToken, err = tokenFromFile(cacheFile)
+		if err != nil {
+			fmt.Println("Cannot find file: %q", cacheFile)
+			return nil, fmt.Errorf("Cannot find file: %q", cacheFile)
+		}
+		log.Printf("Using cached token %+v from %q", clientToken, cacheFile)
+		return clientToken, nil
+	}
+	return clientToken, nil
 }
