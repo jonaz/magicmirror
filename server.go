@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/beatrichartz/martini-sockets"
-	"github.com/cpucycle/astrotime"
 	"github.com/go-martini/martini"
+	"github.com/jonaz/astrotime"
 	"github.com/jonaz/gosmhi"
 )
 
@@ -39,6 +39,9 @@ func main() {
 	})
 	m.Get("/control/:action", sendOnWs)
 	m.Get("/getsmhi", getSmhi)
+	m.Get("/api/sun", func() string {
+		return getSun("rise") + getSun("set")
+	})
 	m.Get("/websocket", sockets.JSON(Message{}), websocketRoute)
 
 	//OAUTH2
@@ -108,10 +111,10 @@ func getSun(p string) string { // {{{
 	var t time.Time
 	switch p {
 	case "set":
-		t = astrotime.NextSunset(time.Now(), float64(56.87697), float64(-14.80918))
+		t = astrotime.NextSunset(time.Now(), float64(56.878333), float64(14.809167))
 		break
 	case "rise":
-		t = astrotime.NextSunrise(time.Now(), float64(56.87697), float64(-14.80918))
+		t = astrotime.NextSunrise(time.Now(), float64(56.878333), float64(14.809167))
 		break
 	}
 
