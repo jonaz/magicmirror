@@ -24,7 +24,7 @@ var (
 	clientIdFile     = flag.String("clientid_file", "clientid.ini", "Name of a file containing just the project's OAuth Client ID from https://code.google.com/apis/console/")
 	clientSecret     = flag.String("secret", "", "OAuth Client Secret.  If non-empty, overrides --secret_file")
 	clientSecretFile = flag.String("secret_file", "clientsecret.ini", "Name of a file containing just the project's OAuth Client Secret from https://code.google.com/apis/console/")
-	clientOptions    *oauth2.Options
+	clientConfig     *oauth2.Config
 	clientToken      *oauth2.Token
 	calendarId       = flag.String("calendar", "", "fetch from this calendarId")
 )
@@ -35,13 +35,9 @@ type CacherRoundTripper struct {
 
 func getEvents(count int64) []*calendar.Event {
 
-	store := &tokenStore{}
-	transport, err := clientOptions.NewTransportFromTokenStore(store)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	client := &http.Client{Transport: transport}
+	sourceToken := oauth2.ReuseTokenSource(nil, &fileTokenSource{})
+	t, _ := sourceToken.Token()
+	client := clientConfig.Client(oauth2.NoContext, t)
 
 	svc, err := calendar.New(client)
 	if err != nil {
@@ -63,15 +59,16 @@ func getEvents(count int64) []*calendar.Event {
 
 func initOauth() {
 	var err error
-	clientOptions, err = oauth2.New(
-		oauth2.Client(valueOrFileContents(*clientId, *clientIdFile), valueOrFileContents(*clientSecret, *clientSecretFile)),
-		oauth2.RedirectURL("http://localhost:3000/oauthredirect"),
-		oauth2.Scope(
+	clientConfig = &oauth2.Config{
+		ClientID:     valueOrFileContents(*clientId, *clientIdFile),
+		ClientSecret: valueOrFileContents(*clientSecret, *clientSecretFile),
+		RedirectURL:  "http://localhost:3000/oauthredirect",
+		Scopes: []string{
 			calendar.CalendarReadonlyScope,
-		),
-		google.Endpoint(),
-	)
-	clientOptions.TokenStore = &tokenStore{}
+		},
+		Endpoint: google.Endpoint,
+	}
+	//clientConfig.TokenSource = &tokenStore{}
 	if err != nil {
 		log.Println("err")
 	}
@@ -83,7 +80,7 @@ func handleSetupOauth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := clientOptions.AuthCodeURL("", "offline", "auto")
+	url := clientConfig.AuthCodeURL("", oauth2.AccessTypeOffline)
 	http.Redirect(w, r, url, http.StatusFound)
 }
 
@@ -93,12 +90,12 @@ func handleOauthRedirect(w http.ResponseWriter, r *http.Request) (int, string) {
 		return 500, "No code!"
 	}
 
-	t, err := clientOptions.NewTransportFromCode(code)
+	t, err := clientConfig.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		log.Fatal(err)
 	}
-	cacheFile := tokenCacheFile(clientOptions)
-	saveToken(cacheFile, t.Token())
+	cacheFile := tokenCacheFile(clientConfig)
+	saveToken(cacheFile, t)
 
 	http.Redirect(w, r, "/", http.StatusFound)
 	return 200, "<h1>Success</h1>Authorized."
@@ -117,7 +114,7 @@ func valueOrFileContents(value string, filename string) string {
 func osUserCacheDir() string {
 	return filepath.Join(os.Getenv("HOME"), ".cache")
 }
-func tokenCacheFile(config *oauth2.Options) string {
+func tokenCacheFile(config *oauth2.Config) string {
 	hash := fnv.New32a()
 	hash.Write([]byte(config.ClientID))
 	hash.Write([]byte(config.ClientSecret))
@@ -150,18 +147,18 @@ func saveToken(file string, token *oauth2.Token) {
 	gob.NewEncoder(f).Encode(token)
 }
 
-type tokenStore struct {
+type fileTokenSource struct {
 }
 
-func (t *tokenStore) WriteToken(token *oauth2.Token) {
-	cacheFile := tokenCacheFile(clientOptions)
+func (t *fileTokenSource) WriteToken(token *oauth2.Token) {
+	cacheFile := tokenCacheFile(clientConfig)
 	saveToken(cacheFile, token)
 }
 
-func (t *tokenStore) ReadToken() (*oauth2.Token, error) {
+func (t *fileTokenSource) Token() (*oauth2.Token, error) {
 	////Fetch token from file if we need to
 	if clientToken == nil {
-		cacheFile := tokenCacheFile(clientOptions)
+		cacheFile := tokenCacheFile(clientConfig)
 		var err error
 		clientToken, err = tokenFromFile(cacheFile)
 		if err != nil {

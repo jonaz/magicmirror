@@ -48,7 +48,9 @@ func main() {
 	m.Get("/oauthsetup", handleSetupOauth)
 	m.Get("/oauthredirect", handleOauthRedirect)
 
-	m.Get("/cal", getEvents)
+	m.Get("/cal", func() interface{} {
+		return getEvents(6)
+	})
 
 	initPeriodicalPush()
 
