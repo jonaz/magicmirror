@@ -1,5 +1,5 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<polymer-element name="x-websocket" attributes="url json jsonSend jsonReceive message" constructor="XWebsocket">
+<dom-module id="x-websocket" >
 	<template>
 		<style>
 			:host {
@@ -12,29 +12,29 @@
 		/*global Polymer */
 		(function() {
 			'use strict';
-			Polymer("x-websocket", {
+			Polymer({
+				is:'x-websocket',
 				//messageChanged: function() {
 				//	console.log("message",this.message);
 				//	this.send(this.message);
 				//},
-				message: '',
-				/**
-				 * Should both sent and received data be interpreted as json and encoded/decoded ? Defaults to false.
-				 * @public
-				 * @type {Boolean}
-				 */
-				json: false,
-				/**
-				 * Should sent data be json-encoded, even if {{json}} is falsy ? Defaults to false.
-				 * @public
-				 * @type {Boolean}
-				 */
-				jsonSend: false,
-				/**
-				 * Should received data be json-decoded, even if {{json}} is falsy ? Defaults to false.
-				 * @type {Boolean}
-				 */
-				jsonReceive: false,
+				properties: {
+					message: {
+						type:Object,
+						value: {},
+						notify:true
+					},
+					json: {
+						type: Boolean,
+						value: true,
+					},
+					url: {
+						notify:true,
+						value:'',
+						type: String,
+						observer: 'urlChanged'
+					}
+				},
 				/**
 				 * WebSocket object.
 				 * @private
@@ -50,7 +50,7 @@
 					if(!this._ws) {
 						throw new Error("x-websocket.send(...): not connected.");
 					}
-					if(this.json || this.jsonSend) {
+					if(this.json ) {
 						data = JSON.stringify(data);
 					}
 					this._ws.send(data);
@@ -129,7 +129,7 @@
 				 */
 				_onwsmessage: function(event) {
 					var data = event.data;
-					if(this.json || this.jsonReceive) {
+					if(this.json ) {
 						data = JSON.parse(data);
 					}
 					this.fire("message", { data: data });
@@ -156,4 +156,4 @@
 			});
 		})();
 	</script>
-</polymer-element>
+</dom-module>

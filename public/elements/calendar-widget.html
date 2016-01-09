@@ -4,7 +4,7 @@
 
 
 
-<polymer-element name="calendar-widget" attributes="websocketMessage">
+<dom-module id="calendar-widget" >
 	<template>
 	<link rel="stylesheet" href="calendar-widget.css">
 
@@ -48,10 +48,22 @@
   <script>
 
   (function() {
+		/* jshint newcap: false */
+		/*global Polymer */
+	  'use strict';
 
-	Polymer('calendar-widget', {
+	Polymer({
+		is:'calendar-widget',
 		time: new Date(),
-		websocketMessage:{},
+		properties: {
+			websocketMessage:{
+				notify:true,
+				type:Object
+			},
+		},
+		observers: [
+			'websocketMessageChanged(websocketMessage.*)'
+		],
 		//ready: function(){
 			//this.refreshAjax();
 		//},
@@ -129,4 +141,4 @@
 
 })();
 </script>
-</polymer-element>
+</dom-module>

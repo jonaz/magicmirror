@@ -1,15 +1,12 @@
 <link rel="import" href="/bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="/bower_components/core-animated-pages/core-animated-pages.html">
-<link rel="import" href="/bower_components/core-animated-pages/transitions/slide-down.html">
-<link rel="import" href="/bower_components/core-animated-pages/transitions/slide-up.html">
-<link rel="import" href="/bower_components/core-animated-pages/transitions/slide-from-right.html">
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="/bower_components/font-roboto/roboto.html">
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="weather-widget.html">
 <link rel="import" href="calendar-widget.html">
 <link rel="import" href="x-websocket.html">
 
-<polymer-element name="mirror-app" >
+<dom-module id="mirror-app" >
   <template>
   <link rel="stylesheet" href="mirror-app.css">
 
@@ -18,43 +15,48 @@
 
   <div style="width:1080px;height:1920px;position:relative;overflow:hidden;">
 
-		<core-animated-pages selected={{showmenu}} transitions="slide-down slide-up" >
-			<section id="mainpage">
-			<div slide-up style="height:1920px;width:1080px;position:relative;">
-				<div slide-up >
-					<div class="upper_left widget_box" style="border:1px #fff solid;"><calendar-widget websocketMessage="{{websocketMessage}}"></calendar-widget></div>
-					<div class="upper_right widget_box" style="border:1px #fff solid;"><weather-widget websocketMessage="{{websocketMessage}}"></weather-widget></div>
-					<div class="lower_left widget_box" style="border:1px #fff solid;">lower left</div>
-					<div class="lower_right widget_box" style="border:1px #fff solid;"> lower right</div>
-				</div>
-			</section>
-			<section id="menu">
-				<div slide-down style="height:1920px;width:1080px;position:relative;">
-					<div style="position:relative;left:25%;width:50%;" >
-						<paper-tabs selected="{{page}}" class="transparent-teal" role="tablist" id="tabsMenu">
-							<paper-tab role="tab" class="" active="">Väder</paper-tab>
-							<paper-tab role="tab" class="">Kalender</paper-tab>
-							<paper-tab role="tab" class="">Nyheter</paper-tab>
-						</paper-tabs>
-					</div>
-						<core-animated-pages transitions="slide-from-right" selected="{{page}}" selectedindex="0" >
-							<section id="weather">
-								<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Väder<i class="wi wi-day-lightning"></i></div>
-							</section>
-							<section id="calendar">
-								<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Kalender</div>
-							</section>
-							<section id="news">
-								<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Nyheter</div>
-							</section>
-						</core-animated-pages>
-				</div>
-			</section>
+		<div class="upper_left widget_box" style="border:1px #fff solid;"><calendar-widget websocketMessage="{{websocketMessage}}"></calendar-widget></div>
+		<div class="upper_right widget_box" style="border:1px #fff solid;"><weather-widget websocketMessage="{{websocketMessage}}"></weather-widget></div>
+		<div class="lower_left widget_box" style="border:1px #fff solid;">lower left</div>
+		<div class="lower_right widget_box" style="border:1px #fff solid;"> lower right</div>
 
-		</core-animated-pages>
+		<!--<iron-pages selected={{showmenu}} transitions="slide-down slide-up" >-->
+			<!--<section id="mainpage">-->
+			<!--<div slide-up style="height:1920px;width:1080px;position:relative;">-->
+				<!--<div slide-up >-->
+					<!--<div class="upper_left widget_box" style="border:1px #fff solid;"><calendar-widget websocketMessage="{{websocketMessage}}"></calendar-widget></div>-->
+					<!--<div class="upper_right widget_box" style="border:1px #fff solid;"><weather-widget websocketMessage="{{websocketMessage}}"></weather-widget></div>-->
+					<!--<div class="lower_left widget_box" style="border:1px #fff solid;">lower left</div>-->
+					<!--<div class="lower_right widget_box" style="border:1px #fff solid;"> lower right</div>-->
+				<!--</div>-->
+			<!--</section>-->
+			<!--<section id="menu">-->
+				<!--<div slide-down style="height:1920px;width:1080px;position:relative;">-->
+					<!--<div style="position:relative;left:25%;width:50%;" >-->
+						<!--<paper-tabs selected="{{page}}" class="transparent-teal" role="tablist" id="tabsMenu">-->
+							<!--<paper-tab role="tab" class="" active="">Väder</paper-tab>-->
+							<!--<paper-tab role="tab" class="">Kalender</paper-tab>-->
+							<!--<paper-tab role="tab" class="">Nyheter</paper-tab>-->
+						<!--</paper-tabs>-->
+					<!--</div>-->
+						<!--<iron-pages transitions="slide-from-right" selected="{{page}}" selectedindex="0" >-->
+							<!--<section id="weather">-->
+								<!--<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Väder<i class="wi wi-day-lightning"></i></div>-->
+							<!--</section>-->
+							<!--<section id="calendar">-->
+								<!--<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Kalender</div>-->
+							<!--</section>-->
+							<!--<section id="news">-->
+								<!--<div slide-from-right id="mainCenter" horizontal layout center style="color:#fff;height:500px;border:1px #fff solid;">Nyheter</div>-->
+							<!--</section>-->
+						<!--</iron-pages>-->
+				<!--</div>-->
+			<!--</section>-->
+
+		<!--</iron-pages>-->
 
 		<div style="top:500px;position:relative;">
-			<core-button on-tap="{{ toggleMenu }}" style="color:#fff;">hide/show menu</core-button>
+			<core-button on-tap="toggleMenu" style="color:#fff;">hide/show menu</core-button>
 		</div>
 	</div>
 
@@ -66,10 +68,22 @@
 		(function() {
 			"use strict";
 
-			Polymer('mirror-app', {
-				selected: 0,
-				showmenu: 0,
-				page:0,
+			Polymer({
+				is:'mirror-app',
+				properties: {
+					showmenu: {
+						type: Boolean,
+						notify:true
+					},
+					selected: {
+						type: Number,
+						notify:true
+					},
+					page: {
+						type: Number,
+						notify:true
+					}
+				},
 				toggleMenu: function() {
 					this.showmenu = (this.showmenu) ? 0:1;
 				},
@@ -99,4 +113,4 @@
 
 		})();
 	</script>
-</polymer-element>
+</dom-module>

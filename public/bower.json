@@ -14,9 +14,10 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#latest",
-    "core-elements": "Polymer/core-elements#latest",
-    "paper-elements": "Polymer/paper-elements#latest",
+    "polymer": "Polymer/polymer#^1.2.0",
+	"iron-elements": "PolymerElements/iron-elements#^1.0.0",
+    "neon-elements": "PolymerElements/neon-elements#^1.0.0",
+	"paper-elements": "PolymerElements/paper-elements#^1.0.1",
     "weather-icons": "latest",
     "moment": "latest"
   }

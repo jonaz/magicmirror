@@ -1,10 +1,9 @@
-<link rel="import" href="/bower_components/core-ajax/core-ajax.html">
 <link rel="import" href="/bower_components/polymer/polymer.html">
 <link rel="import" href="/bower_components/font-roboto/roboto.html">
 
 
 
-<polymer-element name="weather-widget" attributes="websocketMessage">
+<dom-module id="weather-widget" >
 	<template>
 	<link rel="stylesheet" href="weather-widget.css">
 	<link rel="stylesheet" href="../../bower_components/weather-icons/css/weather-icons.min.css">
@@ -82,106 +81,110 @@
   </template>
   <script>
 
-  (function() {
+	  (function() {
+		  /* jshint newcap: false */
+		  /*global Polymer */
+		  'use strict';
 
-	Polymer('weather-widget', {
-		selected: 0,
-		showmenu: 0,
-		page:0,
-		websocketMessage:{},
-		ready: function(){
-			//this.refreshAjax();
-		},
-		refreshAjax: function(){
-			this.$.ajaxtemp.go();
-			this.$.ajaxsunset.go();
-			this.async(this.refreshAjax,null,900000); //refresh every 15 minutes.
-		},
-		toggleMenu: function() {
-			console.log("toggleMenu");
-			if(this.showmenu === 1){
-					this.showmenu = 0;
-					return;
-				}
-			this.showmenu = 1;
-			console.log(this.showmenu);
-		},
-		websocketMessageChanged: function(){
-			switch(this.websocketMessage.type){
-				case 'temp':
-					this.$.temp.innerHTML=this.websocketMessage.data;
-					break;
-				case 'sunset':
-					this.$.sunset.innerHTML=this.websocketMessage.data;
-					break;
-				case 'sunrise':
-					this.$.sunrise.innerHTML=this.websocketMessage.data;
-					break;
-				case 'weather':
-					this.weatherData = this.websocketMessage.data;
-					break;
-				case 'right':
-					this.page++
-					break;
-			}
-		},
-		formatWeatherIcon:function(data){
-			if(data === undefined){
-				return;
-			}
+		  Polymer({
+			  is:'weather-widget',
+			  page:0,
+			  websocketMessage:{},
+			  properties: {
+				  websocketMessage:{
+					  type:Object,
+					  notify:true
+				  },
+				  page: {
+					  type: Number,
+					  notify:true
+				  }
 
-			//console.log(data);
+			  },
+			observers: [
+				'websocketMessageChanged(websocketMessage.*)'
+			],
+			  ready: function(){
+				  //this.refreshAjax();
+			  },
+			  refreshAjax: function(){
+				  this.$.ajaxtemp.go();
+				  this.$.ajaxsunset.go();
+				  this.async(this.refreshAjax,null,900000); //refresh every 15 minutes.
+			  },
+			  websocketMessageChanged: function(){
+				  console.log("test");
+				  switch(this.websocketMessage.type){
+					  case 'temp':
+						  this.$.temp.innerHTML=this.websocketMessage.data;
+						  break;
+					  case 'sunset':
+						  this.$.sunset.innerHTML=this.websocketMessage.data;
+						  break;
+					  case 'sunrise':
+						  this.$.sunrise.innerHTML=this.websocketMessage.data;
+						  break;
+					  case 'weather':
+						  this.weatherData = this.websocketMessage.data;
+						  break;
+					  case 'right':
+						  this.page++;
+							  break;
+				  }
+			  },
+			  formatWeatherIcon:function(data){
+				  if(data === undefined){
+					  return;
+				  }
 
-			switch(data.weather){
-				case 0: //no Precipitation
-					if( data.cloud < 5){
-						return 'wi-day-sunny';
-					}
-					if( data.cloud < 8){
-						return 'wi-day-sunny-overcast';
-					}
-					return 'wi-cloudy';
+				  //console.log(data);
 
-					break;
-				case 1: //snow
-				case 2: //snow and rain
-					if( data.cloud < 4){
-						return 'wi-day-snow';
-					}
-					return 'wi-snow';
-					break;
-				case 3: //rain
-				case 4: //drizzle
-					if( data.cloud < 5){
-						return 'wi-day-rain';
-					}
-					return 'wi-rain';
-					break;
-				case 5: //freezing rain
-				case 6: //freezing drizzle
-					return 'wi-snow';
-					break;
-			}
+				  switch(data.weather){
+					  case 0: //no Precipitation
+						  if( data.cloud < 5){
+							  return 'wi-day-sunny';
+						  }
+						  if( data.cloud < 8){
+							  return 'wi-day-sunny-overcast';
+						  }
+						  return 'wi-cloudy';
 
-		},
-		formatDay: function(day){
-			if(day === undefined){
-				return;
-			}
-			day = day.substr(0,3);
-			var weekday = new Array(7);
-			weekday['Mon'] = "Mån";
-			weekday['Tue'] = "Tis";
-			weekday['Wed'] = "Ons";
-			weekday['Thu'] = "Tor";
-			weekday['Fri'] = "Fri";
-			weekday['Sat'] = "Lör";
-			weekday['Sun'] = "Sön";
+					  case 1: //snow
+					  case 2: //snow and rain
+						  if( data.cloud < 4){
+							  return 'wi-day-snow';
+						  }
+						  return 'wi-snow';
+					  case 3: //rain
+					  case 4: //drizzle
+						  if( data.cloud < 5){
+							  return 'wi-day-rain';
+						  }
+						  return 'wi-rain';
+					  case 5: //freezing rain
+					  case 6: //freezing drizzle
+						  return 'wi-snow';
+				  }
 
-			return weekday[day];
-		}
-	});
+			  },
+			  formatDay: function(day){
+				  if(day === undefined){
+					  return;
+				  }
+				  day = day.substr(0,3);
+				  var weekday = new Array(7);
+				  weekday['Mon'] = "Mån";
+				  weekday['Tue'] = "Tis";
+				  weekday['Wed'] = "Ons";
+				  weekday['Thu'] = "Tor";
+				  weekday['Fri'] = "Fri";
+				  weekday['Sat'] = "Lör";
+				  weekday['Sun'] = "Sön";
 
-})();
-</script>
-</polymer-element>
+				  return weekday[day];
+			  }
+		  });
+
+	  })();
+  </script>
+</dom-module>
