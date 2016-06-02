@@ -5,186 +5,194 @@
 
 <dom-module id="weather-widget" >
 	<template>
-	<link rel="stylesheet" href="weather-widget.css">
-	<link rel="stylesheet" href="../../bower_components/weather-icons/css/weather-icons.min.css">
+		<link rel="stylesheet" href="weather-widget.css">
+		<link rel="stylesheet" href="../../bower_components/weather-icons/css/weather-icons.min.css">
 
 
-	<div id="container">
-		<!--Väder-->
-		<!--<i class="wi wi-day-lightning" style="font-size:20px;"></i>-->
-		<!--<span id="temp"></span>-->
+		<div id="container">
+			<!--Väder-->
+			<!--<i class="wi wi-day-lightning" style="font-size:20px;"></i>-->
 
-		<div class="windsun small dimmed" style="display: block;">
-			<table>
-				<tbody>
-					<tr style="opacity: 1;">
-						<td><span class="wi wi-strong-wind xdimmed"></span></td>
-						<td><span class="wi wi-sunrise xdimmed"></span></td>
-						<td><span class="wi wi-sunset xdimmed"></span></td>
-					</tr>
-					<tr style="opacity: 1;">
-						<td><span id="wind">{{weatherData.windmin}}-{{weatherData.windmax}}</span></span></td>
+			<div class="windsun small dimmed" style="display: block;">
+				<table>
+					<tbody>
+						<tr style="opacity: 1;">
+							<td><span class="wi wi-strong-wind xdimmed"></span></td>
+							<td><span class="wi wi-sunrise xdimmed"></span></td>
+							<td><span class="wi wi-sunset xdimmed"></span></td>
+						</tr>
+						<tr style="opacity: 1;">
+							<td><span id="wind">{{weatherData.windmin}}-{{weatherData.windmax}}</span></span></td>
 						<td><span id="sunrise"></span></span></td>
-						<td><span id="sunset"></span></span></td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-		<div class="temp" style="display: block;">
-			<span class="icon dimmed wi {{weatherData | formatWeatherIcon}}"></span><span id="temp"></span>°
-		</div>
-		<div class="forecast small dimmed" style="display: block;">
-			<table class="forecast-table">
-				<tbody>
-					<tr style="opacity: 1;">
-						<td class="day">{{weatherData.days[0].day | formatDay}}</td>
-						<td><span class="icon-small wi {{weatherData.days[0] | formatWeatherIcon}}"></span></td>
-						<td class="temp-max">{{weatherData.days[0].max}}</td>
-						<td class="temp-min">{{weatherData.days[0].min}}</td>
-					</tr>
-					<tr style="opacity: 0.845;">
-						<td class="day">{{weatherData.days[1].day | formatDay}}</td>
-						<td><span class="icon-small wi {{weatherData.days[1] | formatWeatherIcon}}"></span></td>
-						<td class="temp-max">{{weatherData.days[1].max}}</td>
-						<td class="temp-min">{{weatherData.days[1].min}}</td>
-					</tr>
-					<tr style="opacity: 0.69;">
-						<td class="day">{{weatherData.days[2].day | formatDay}}</td>
-						<td><span class="icon-small wi {{weatherData.days[2] | formatWeatherIcon}}"></span></td>
-						<td class="temp-max">{{weatherData.days[2].max}}</td>
-						<td class="temp-min">{{weatherData.days[2].min}}</td>
-					</tr>
-					<tr style="opacity: 0.5349999999999999;">
-						<td class="day">{{weatherData.days[3].day | formatDay}}</td>
-						<td><span class="icon-small wi {{weatherData.days[3] | formatWeatherIcon}}"></span></td>
-						<td class="temp-max">{{weatherData.days[3].max}}</td>
-						<td class="temp-min">{{weatherData.days[3].min}}</td>
-					</tr>
-					<tr style="opacity: 0.3799999999999999;">
-						<td class="day">{{weatherData.days[4].day | formatDay}}</td>
-						<td><span class="icon-small wi {{weatherData.days[4] | formatWeatherIcon}}"></span></td>
-						<td class="temp-max">{{weatherData.days[4].max}}</td>
-						<td class="temp-min">{{weatherData.days[4].min}}</td>
-					</tr>
-					<tr style="opacity: 0.2249999999999999;">
-						<td class="day">{{weatherData.days[5].day | formatDay}}</td>
-						<td><span class="icon-small wi {{weatherData.days[5] | formatWeatherIcon}}"></span></td>
-						<td class="temp-max">{{weatherData.days[5].max}}</td>
-						<td class="temp-min">{{weatherData.days[5].min}}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+					<td><span id="sunset"></span></span></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div class="temp" style="display: block;">
+	<span class="icon dimmed wi {{weatherData | formatWeatherIcon}}"></span><span id="temp"></span>°
+</div>
+<div class="forecast small dimmed" style="display: block;">
+	<table class="forecast-table">
+		<tbody>
+
+			<template is="dom-repeat" items="[[weatherData.days]]">
+				<tr style$="{{calculateOpacity(index)}}">
+				<td class="day">{{ formatDay(item.day) }}</td>
+				<td><span class$="{{ formatWeatherIcon(item)}}"></span></td>
+				<td class="temp-max">{{item.max}}</td>
+				<td class="temp-min">{{item.min}}</td>
+			</tr>
+			
+			</template>
+
+			<!--<tr style="opacity: 0.845;">-->
+				<!--<td class="day">{{weatherData.days[1].day | formatDay}}</td>-->
+				<!--<td><span class="icon-small wi {{weatherData.days[1] | formatWeatherIcon}}"></span></td>-->
+				<!--<td class="temp-max">{{weatherData.days[1].max}}</td>-->
+				<!--<td class="temp-min">{{weatherData.days[1].min}}</td>-->
+			<!--</tr>-->
+			<!--<tr style="opacity: 0.69;">-->
+				<!--<td class="day">{{weatherData.days[2].day | formatDay}}</td>-->
+				<!--<td><span class="icon-small wi {{weatherData.days[2] | formatWeatherIcon}}"></span></td>-->
+				<!--<td class="temp-max">{{weatherData.days[2].max}}</td>-->
+				<!--<td class="temp-min">{{weatherData.days[2].min}}</td>-->
+			<!--</tr>-->
+			<!--<tr style="opacity: 0.5349999999999999;">-->
+				<!--<td class="day">{{weatherData.days[3].day | formatDay}}</td>-->
+				<!--<td><span class="icon-small wi {{weatherData.days[3] | formatWeatherIcon}}"></span></td>-->
+				<!--<td class="temp-max">{{weatherData.days[3].max}}</td>-->
+				<!--<td class="temp-min">{{weatherData.days[3].min}}</td>-->
+			<!--</tr>-->
+			<!--<tr style="opacity: 0.3799999999999999;">-->
+				<!--<td class="day">{{weatherData.days[4].day | formatDay}}</td>-->
+				<!--<td><span class="icon-small wi {{weatherData.days[4] | formatWeatherIcon}}"></span></td>-->
+				<!--<td class="temp-max">{{weatherData.days[4].max}}</td>-->
+				<!--<td class="temp-min">{{weatherData.days[4].min}}</td>-->
+			<!--</tr>-->
+			<!--<tr style="opacity: 0.2249999999999999;">-->
+				<!--<td class="day">{{weatherData.days[5].day | formatDay}}</td>-->
+				<!--<td><span class="icon-small wi {{weatherData.days[5] | formatWeatherIcon}}"></span></td>-->
+				<!--<td class="temp-max">{{weatherData.days[5].max}}</td>-->
+				<!--<td class="temp-min">{{weatherData.days[5].min}}</td>-->
+			<!--</tr>-->
+		</tbody>
+	</table>
+</div>
 
 	</div>
 
-  </template>
-  <script>
+</template>
+<script>
 
-	  (function() {
-		  /* jshint newcap: false */
-		  /*global Polymer */
-		  'use strict';
+	(function() {
+		/* jshint newcap: false */
+		/*global Polymer */
+		'use strict';
 
-		  Polymer({
-			  is:'weather-widget',
-			  page:0,
-			  websocketMessage:{},
-			  properties: {
-				  websocketMessage:{
-					  type:Object,
-					  notify:true
-				  },
-				  page: {
-					  type: Number,
-					  notify:true
-				  }
+		Polymer({
+			is:'weather-widget',
+			properties: {
+				message:{
+					type:Object,
+					notify:true,
+					observer: 'onwebsocketMessage'
+				},
+				weatherData:{
+					type:Object,
+					notify:true
+				}
+			},
+			ready: function(){
+				//this.refreshAjax();
+				/*
+				document.querySelector('x-websocket').addEventListener('message', function (m) {
+					this.set('websocketMessage', m.detail.data);
+				});
+				*/
+			},
+			calculateOpacity: function(index){
+				var length = this.weatherData.days.length;
+				var v = (1/length)*(length-index);
+				return 'opacity: '+ v + ';';
+			},
+			arrayItem: function(change, index, path) {
+				return this.get(path, change.base[index]);
+			},
+			onwebsocketMessage: function(){
+				console.log("test");
+				switch(this.message.type){
+					case 'temp':
+						this.$.temp.innerHTML=this.message.data;
+						break;
+					case 'sunset':
+						this.$.sunset.innerHTML=this.message.data;
+						break;
+					case 'sunrise':
+						this.$.sunrise.innerHTML=this.message.data;
+						break;
+					case 'weather':
+						this.set('weatherData', this.message.data);
+						console.log(this.weatherData);
+						break;
+				}
+			},
+			formatWeatherIcon:function(data){
+				if(data === undefined){
+					return;
+				}
 
-			  },
-			observers: [
-				'websocketMessageChanged(websocketMessage.*)'
-			],
-			  ready: function(){
-				  //this.refreshAjax();
-			  },
-			  refreshAjax: function(){
-				  this.$.ajaxtemp.go();
-				  this.$.ajaxsunset.go();
-				  this.async(this.refreshAjax,null,900000); //refresh every 15 minutes.
-			  },
-			  websocketMessageChanged: function(){
-				  console.log("test");
-				  switch(this.websocketMessage.type){
-					  case 'temp':
-						  this.$.temp.innerHTML=this.websocketMessage.data;
-						  break;
-					  case 'sunset':
-						  this.$.sunset.innerHTML=this.websocketMessage.data;
-						  break;
-					  case 'sunrise':
-						  this.$.sunrise.innerHTML=this.websocketMessage.data;
-						  break;
-					  case 'weather':
-						  this.weatherData = this.websocketMessage.data;
-						  break;
-					  case 'right':
-						  this.page++;
-							  break;
-				  }
-			  },
-			  formatWeatherIcon:function(data){
-				  if(data === undefined){
-					  return;
-				  }
+				//console.log(data);
 
-				  //console.log(data);
+				var c = 'icon-small wi ';
 
-				  switch(data.weather){
-					  case 0: //no Precipitation
-						  if( data.cloud < 5){
-							  return 'wi-day-sunny';
-						  }
-						  if( data.cloud < 8){
-							  return 'wi-day-sunny-overcast';
-						  }
-						  return 'wi-cloudy';
+				switch(data.weather){
+					case 0: //no Precipitation
+						if( data.cloud < 5){
+							return c+'wi-day-sunny';
+						}
+						if( data.cloud < 8){
+							return c+'wi-day-sunny-overcast';
+						}
+						return c+'wi-cloudy';
 
-					  case 1: //snow
-					  case 2: //snow and rain
-						  if( data.cloud < 4){
-							  return 'wi-day-snow';
-						  }
-						  return 'wi-snow';
-					  case 3: //rain
-					  case 4: //drizzle
-						  if( data.cloud < 5){
-							  return 'wi-day-rain';
-						  }
-						  return 'wi-rain';
-					  case 5: //freezing rain
-					  case 6: //freezing drizzle
-						  return 'wi-snow';
-				  }
+					case 1: //snow
+					case 2: //snow and rain
+						if( data.cloud < 4){
+							return c+'wi-day-snow';
+						}
+						return c+'wi-snow';
+					case 3: //rain
+					case 4: //drizzle
+						if( data.cloud < 5){
+							return c+'wi-day-rain';
+						}
+						return c+'wi-rain';
+					case 5: //freezing rain
+					case 6: //freezing drizzle
+						return c+'wi-snow';
+				}
 
-			  },
-			  formatDay: function(day){
-				  if(day === undefined){
-					  return;
-				  }
-				  day = day.substr(0,3);
-				  var weekday = new Array(7);
-				  weekday['Mon'] = "Mån";
-				  weekday['Tue'] = "Tis";
-				  weekday['Wed'] = "Ons";
-				  weekday['Thu'] = "Tor";
-				  weekday['Fri'] = "Fri";
-				  weekday['Sat'] = "Lör";
-				  weekday['Sun'] = "Sön";
+			},
+			formatDay: function(day){
+				console.log(day); 
+				if(day === undefined){
+					return;
+				}
+				day = day.substr(0,3);
+				var weekday = new Array(7);
+				weekday['Mon'] = "Mån";
+				weekday['Tue'] = "Tis";
+				weekday['Wed'] = "Ons";
+				weekday['Thu'] = "Tor";
+				weekday['Fri'] = "Fri";
+				weekday['Sat'] = "Lör";
+				weekday['Sun'] = "Sön";
 
-				  return weekday[day];
-			  }
-		  });
+				return weekday[day];
+			}
+		});
 
-	  })();
-  </script>
+	})();
+</script>
 </dom-module>

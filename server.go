@@ -87,7 +87,7 @@ func doPeriodicalStuff() { // {{{
 	clients.messageOtherClients(&Message{"sunset", getSun("set")})
 	clients.messageOtherClients(&Message{"sunrise", getSun("rise")})
 	clients.messageOtherClients(&Message{"weather", getSmhi()})
-	clients.messageOtherClients(&Message{"calendarEvents", getEvents(6)})
+	//clients.messageOtherClients(&Message{"calendarEvents", getEvents(6)})
 } // }}}
 
 //Download temp from temperatur.nu.

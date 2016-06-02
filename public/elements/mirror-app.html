@@ -15,8 +15,8 @@
 
   <div style="width:1080px;height:1920px;position:relative;overflow:hidden;">
 
-		<div class="upper_left widget_box" style="border:1px #fff solid;"><calendar-widget websocketMessage="{{websocketMessage}}"></calendar-widget></div>
-		<div class="upper_right widget_box" style="border:1px #fff solid;"><weather-widget websocketMessage="{{websocketMessage}}"></weather-widget></div>
+		<!--<div class="upper_left widget_box" style="border:1px #fff solid;"><calendar-widget websocketMessage="{{websocketMessage}}"></calendar-widget></div>-->
+		<div class="upper_right widget_box"><weather-widget message="{{websocketMessage}}"></weather-widget></div>
 		<div class="lower_left widget_box" style="border:1px #fff solid;">lower left</div>
 		<div class="lower_right widget_box" style="border:1px #fff solid;"> lower right</div>
 
@@ -55,9 +55,9 @@
 
 		<!--</iron-pages>-->
 
-		<div style="top:500px;position:relative;">
-			<core-button on-tap="toggleMenu" style="color:#fff;">hide/show menu</core-button>
-		</div>
+		<!--<div style="top:500px;position:relative;">-->
+			<!--<core-button on-tap="toggleMenu" style="color:#fff;">hide/show menu</core-button>-->
+		<!--</div>-->
 	</div>
 
   </template>
@@ -71,6 +71,11 @@
 			Polymer({
 				is:'mirror-app',
 				properties: {
+					websocketMessage: {
+						type: Object,
+						value: {},
+						notify:true
+					},
 					showmenu: {
 						type: Boolean,
 						notify:true
@@ -88,6 +93,7 @@
 					this.showmenu = (this.showmenu) ? 0:1;
 				},
 				websocketMessageChanged: function(a,b){
+					console.log("test", a,b);
 					switch(b.type){
 						case 'down':
 							this.showmenu=1;
@@ -107,7 +113,9 @@
 					}
 				},
 				ready: function(){
-
+					document.querySelector('x-websocket').addEventListener('message', function (m) {
+						this.set('websocketMessage', m.detail.data);
+					});
 				}
 			});
 
