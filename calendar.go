@@ -14,9 +14,9 @@ import (
 	"strings"
 	"time"
 
-	calendar "code.google.com/p/google-api-go-client/calendar/v3"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	calendar "google.golang.org/api/calendar/v3"
 )
 
 var (
