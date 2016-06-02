@@ -10,7 +10,7 @@
   <template>
   <link rel="stylesheet" href="mirror-app.css">
 
-  <x-websocket json="true" url="ws://localhost:3000/websocket" message="{{websocketMessage}}" ></x-websocket>
+  <x-websocket json="true" url="{{url}}" message="{{websocketMessage}}" ></x-websocket>
 
 
   <div style="width:1080px;height:1920px;position:relative;overflow:hidden;">
@@ -71,6 +71,10 @@
 			Polymer({
 				is:'mirror-app',
 				properties: {
+					url: {
+						type: String,
+						value: 'ws://'+window.location.host+'/websocket'
+					},
 					websocketMessage: {
 						type: Object,
 						value: {},
