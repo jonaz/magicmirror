@@ -18,6 +18,9 @@ import (
 )
 
 var Shutdown = make(chan bool)
+var (
+	port = flag.String("port", "8080", "server port")
+)
 
 func main() {
 	flag.Parse()
@@ -55,7 +58,8 @@ func main() {
 	initPeriodicalPush()
 
 	go func() {
-		m.Run()
+		m.RunOnAddr(":" + *port)
+
 	}()
 
 	err := gracefulShutdown.WaitForSignal(syscall.SIGTERM, syscall.SIGINT)
