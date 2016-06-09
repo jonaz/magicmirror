@@ -1,0 +1,21 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+    - authorized_key:
+        user: root
+        key:  "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+- hosts: all
+  remote_user: root
+  roles:
+    - { role: go-app,
+        app: 'magicmirror',
+        url: 'github.com/jonaz/magicmirror',
+        static: "public"
+        #env: [
+            #{ key: CONFIG_WEBPORT ,value: '8081' },
+            #{ key: CONFIG_WEBROOT ,value: 'public' },
+        #]
+      }

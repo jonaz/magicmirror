@@ -1,0 +1,54 @@
+---
+- name: "build {{ url }}"
+  become: False
+  local_action: shell go get {{ url }}
+
+- name: "crosscompile {{ url }}"
+  become: False
+  local_action: shell cd {{ gopath }}/src/{{url}} && ./dockerCrosscompile.sh
+
+- name: install libselinux-python required for selinux in centos
+  yum: name=libselinux-python state=installed
+  when: ansible_distribution == "CentOS"
+
+- name: install rsync
+  pacman: name=rsync state=present
+
+- name: Create group
+  group: name={{app}}
+
+- name: Create user
+  user: name={{app}} group={{app}}
+
+- name: Copy application to server
+  copy: src={{ gopath }}/src/{{url}}/{{app}} dest=/usr/local/bin owner={{app}} group={{app}} mode=755
+  notify: restart
+
+- name: create folders for static files
+  #file: path=/home/{{ app }}/{{ item.dest | dirname }} state=directory owner={{app}} group={{app}} mode=755
+  become_user: false
+  synchronize: src={{gopath}}/src/{{url}}/{{static}} dest="/home/{{app}}/"
+  when: static is defined
+  with_items: "{{ static }}"
+
+- stat: path=/etc/systemd/system
+  register: systemd_dir
+
+- name: Copy systemd service
+  template: src=service.service dest=/etc/systemd/system/{{ app }}.service mode=0644 owner=root group=root
+  when: (ansible_distribution == "CentOS" and ansible_distribution_major_version == "7") or systemd_dir.stat.exists
+  notify: restart
+  register: installed_systemdservice
+
+- name: Create environmentFile
+  template: src=environment dest=/etc/{{app}}.env mode=0640 owner=root group=root
+  when: (ansible_distribution == "CentOS" and ansible_distribution_major_version == "7") or systemd_dir.stat.exists
+  notify: restart
+
+- name: "Reload systemd"
+  shell: systemctl daemon-reload
+  when: installed_systemdservice|changed
+
+- name: "Enable & start service"
+  service: name={{app}} enabled=yes state=started
+

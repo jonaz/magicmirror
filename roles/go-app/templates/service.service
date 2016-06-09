@@ -1,0 +1,16 @@
+[Unit]
+Description={{app}}
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User={{ app }}
+Group={{ app }}
+WorkingDirectory=/home/{{ app }}/
+ExecStart=/usr/local/bin/{{ app }}
+Restart=always
+EnvironmentFile=/etc/{{ app }}.env
+
+[Install]
+WantedBy=multi-user.target
