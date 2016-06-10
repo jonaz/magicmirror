@@ -61,7 +61,8 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 
 	fmt.Println("listening...")
-	onTime := time.Now()
+	dur, _ := time.ParseDuration("-5m")
+	onTime := time.Now().Add(dur)
 	for {
 		select {
 		case <-c:
