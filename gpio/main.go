@@ -14,8 +14,6 @@ import (
 
 func main() {
 
-	turnScreenOn()
-	return
 	if err := embd.InitGPIO(); err != nil {
 		panic(err)
 	}
