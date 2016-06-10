@@ -72,13 +72,15 @@ func main() {
 			switch q {
 			case 17: //left side
 				log.Printf("Motion detected from left.\n")
-				if time.Since(onTime).Seconds() > 600 {
+				if time.Since(onTime).Seconds() > 300 {
 					turnScreenOn()
+					onTime = time.Now()
 				}
 			case 18: //right side
 				log.Printf("Motion detected from right.\n")
-				if time.Since(onTime).Seconds() > 600 {
+				if time.Since(onTime).Seconds() > 300 {
 					turnScreenOn()
+					onTime = time.Now()
 				}
 			}
 		}
