@@ -69,7 +69,6 @@ func main() {
 			fmt.Println("bye")
 			return
 		case q := <-motion:
-			log.Printf("Motion detected from %d.\n", q)
 			switch q {
 			case 17: //left side
 				log.Printf("Motion detected from left.\n")
