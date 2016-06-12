@@ -40,17 +40,17 @@ func main() {
 	btn17.ActiveLow(false)
 	btn18.ActiveLow(false)
 
-	motion := make(chan int)
-	err = btn17.Watch(embd.EdgeRising, func(btn embd.DigitalPin) {
-		motion <- btn.N()
+	motion := make(chan embd.DigitalPin)
+	err = btn17.Watch(embd.EdgeBoth, func(btn embd.DigitalPin) {
+		motion <- btn
 		//log.Println(btn.N(), v)
 	})
 	if err != nil {
 		panic(err)
 	}
-	err = btn18.Watch(embd.EdgeRising, func(btn embd.DigitalPin) {
+	err = btn18.Watch(embd.EdgeBoth, func(btn embd.DigitalPin) {
 		//v,_ := btn.Read()
-		motion <- btn.N()
+		motion <- btn
 		//log.Println(btn.N(), v)
 	})
 	if err != nil {
@@ -68,23 +68,33 @@ func main() {
 		case <-c:
 			fmt.Println("bye")
 			return
-		case q := <-motion:
-			switch q {
-			case 17: //left side
-				log.Printf("Motion detected from left.\n")
-				if time.Since(onTime).Seconds() > 300 {
-					turnScreenOn()
-					onTime = time.Now()
-				}
-			case 18: //right side
-				log.Printf("Motion detected from right.\n")
-				if time.Since(onTime).Seconds() > 300 {
-					turnScreenOn()
-					onTime = time.Now()
-				}
+		case btn := <-motion:
+			direction := getDirection(btn.N())
+			v,_ := btn.Read()
+			if v == 0 {
+				log.Printf("Motion stopped from %s.\n", direction)
+				continue
 			}
+			log.Printf("Motion detected from %s.\n", direction)
+			if time.Since(onTime).Seconds() > 300 {
+				turnScreenOn()
+				onTime = time.Now()
+			}
+				
 		}
 	}
+}
+
+func getDirection(id int) string{
+					
+	switch id {
+	case 17: //left side
+		return "left"
+	case 18: //right side
+		return "right"
+	}
+
+	return "unknown"
 }
 
 func turnScreenOn() {
