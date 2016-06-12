@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"sync"
+	"time"
+
 	"github.com/go-martini/martini"
 	"github.com/gorilla/websocket"
-	"sync"
 )
 
 var clients *Clients
@@ -45,10 +48,24 @@ func sendOnWs(p martini.Params) {
 // Message all the other clients
 func (r *Clients) messageOtherClients(msg *Message) {
 	r.Lock()
+	clientsToRemove := make([]*Client, 0)
+
 	for _, c := range r.clients {
-		c.out <- msg
+		select {
+		case c.out <- msg:
+			// Everything went well :)
+		case <-time.After(time.Second):
+			log.Println("Failed writing to websocket: timeout (", c, ")")
+			clientsToRemove = append(clientsToRemove, c)
+		}
 	}
-	defer r.Unlock()
+
+	r.Unlock()
+	go func() {
+		for _, c := range clientsToRemove {
+			r.removeClient(c)
+		}
+	}()
 }
 
 // Remove a client
@@ -58,6 +75,7 @@ func (r *Clients) removeClient(client *Client) {
 
 	for index, c := range r.clients {
 		if c == client {
+			c.disconnect <- websocket.CloseInternalServerErr
 			r.clients = append(r.clients[:index], r.clients[(index+1):]...)
 		}
 	}
