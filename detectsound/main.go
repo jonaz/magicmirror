@@ -5,12 +5,16 @@ import (
 	"time"
 	"strings"
 	"strconv"
-	"regexp"
 	"log"
+	"flag"
 	"os/exec"
 )
 
 func main() {
+	debug := flag.Bool("d", false, "Debug: Print volume level")
+	level := flag.Int("l", 10, "Level threshold")
+	flag.Parse()
+
 	//arecord -c 2 -d 0 -f S16_LE -vvv /dev/null
 	cmd := exec.Command("arecord", "-c", "2", "-d", "0", "-f", "S16_LE", "-vvv", "/dev/null")
 	stdout, err := cmd.StderrPipe()
@@ -20,25 +24,29 @@ func main() {
 
 	scanner := bufio.NewScanner(stdout)
 	go func() {
-		re := regexp.MustCompile(`\d+%`)
+		//re := regexp.MustCompile(`\d+%`)
 		dur, _ := time.ParseDuration("-1m")
 		onTime := time.Now().Add(dur)
 		for scanner.Scan() {
 			t := scanner.Text()
 			//fmt.Println(t)
-			matches := re.FindAllString(t, -1)
+			//matches := re.FindAllString(t, -1)
+			matches := strings.Split(t,"#")
 			
-			if len(matches) < 1 {
+			if len(matches) < 2 {
 				continue
 			}
-			i , err := strconv.Atoi(strings.TrimRight(matches[0],"%"))
+
+			i , err := strconv.Atoi(strings.TrimSpace(strings.TrimRight(matches[1],"%")))
 			if err != nil{
 				log.Println(err)
 				continue
 			}
 
-
-			if i > 10 {
+			if *debug {
+				log.Println("level:", i)
+			}
+			if i > *level {
 				log.Println("SOUND DETECTED", i)
 				//Only allow turning on screen every minute
 				if  time.Since(onTime).Seconds() > 60 {
