@@ -1,0 +1,6 @@
+
+gpu_mem=256
+hdmi_group=2
+hdmi_mode=82
+display_rotate=1
+hdmi_blanking=1

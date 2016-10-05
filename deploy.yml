@@ -9,7 +9,9 @@
 
 - hosts: all
   remote_user: root
+  become: false
   roles:
+    - kiosk
     - { role: go-app,
         app: 'magicmirror',
         url: 'github.com/jonaz/magicmirror',

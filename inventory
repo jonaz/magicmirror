@@ -1,2 +1,2 @@
 [mirrors]
-mirror ansible_python_interpreter=/usr/bin/python2
+mirror ansible_python_interpreter=/usr/bin/python2 kiosk_username=jonaz

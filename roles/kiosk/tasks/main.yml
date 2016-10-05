@@ -1,0 +1,43 @@
+---
+- name: Create group
+  group: name={{kiosk_username}}
+
+- name: Create user
+  user: name={{kiosk_username}} group={{kiosk_username}}
+
+- name: Install Packages
+  pacman: name={{item}} state=installed update_cache=yes
+  with_items:
+    - vim 
+    - git 
+    - sudo 
+    - net-tools 
+    - xf86-video-fbdev 
+    - xorg-server 
+    - xorg-xinit 
+    - ttf-bitstream-vera 
+    - chromium 
+    - i3-wm 
+    - unclutter
+
+- name: template bash_profile
+  template: src=bash_profile dest=/home/{{kiosk_username}}/.bash_profile owner={{kiosk_username}} group={{kiosk_username}}
+
+- name: template xinitrc
+  template: src=xinitrc dest=/home/{{kiosk_username}}/.xinitrc owner={{kiosk_username}} group={{kiosk_username}}
+
+- name: i3 config path
+  file: path=/home/{{kiosk_username}}/.config/i3/ state=directory owner={{kiosk_username}} group={{kiosk_username}} recurse=yes
+
+- name: template i3-config
+  template: src=i3config dest=/home/{{kiosk_username}}/.config/i3/config owner={{kiosk_username}} group={{kiosk_username}}
+
+- name: template autologin
+  template: 
+    src: systemd_autologin
+    dest: "/etc/systemd/system/getty@tty1.service.d/override.conf"
+    owner: root
+    group: root
+
+- name: template /boot/config.txt
+  template: src=config.txt dest=/boot/config.txt

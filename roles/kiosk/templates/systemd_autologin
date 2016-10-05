@@ -1,0 +1,5 @@
+[Service]
+Type=simple
+ExecStart=
+ExecStart=-/usr/bin/agetty --autologin {{kiosk_username}} --noclear %I $TERM
+

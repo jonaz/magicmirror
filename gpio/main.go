@@ -43,15 +43,12 @@ func main() {
 	motion := make(chan embd.DigitalPin)
 	err = btn17.Watch(embd.EdgeBoth, func(btn embd.DigitalPin) {
 		motion <- btn
-		//log.Println(btn.N(), v)
 	})
 	if err != nil {
 		panic(err)
 	}
 	err = btn18.Watch(embd.EdgeBoth, func(btn embd.DigitalPin) {
-		//v,_ := btn.Read()
 		motion <- btn
-		//log.Println(btn.N(), v)
 	})
 	if err != nil {
 		panic(err)
@@ -70,7 +67,7 @@ func main() {
 			return
 		case btn := <-motion:
 			direction := getDirection(btn.N())
-			v,_ := btn.Read()
+			v, _ := btn.Read()
 			if v == 0 {
 				log.Printf("Motion stopped from %s.\n", direction)
 				continue
@@ -80,13 +77,13 @@ func main() {
 				turnScreenOn()
 				onTime = time.Now()
 			}
-				
+
 		}
 	}
 }
 
-func getDirection(id int) string{
-					
+func getDirection(id int) string {
+
 	switch id {
 	case 17: //left side
 		return "left"

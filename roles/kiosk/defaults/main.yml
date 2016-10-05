@@ -1,0 +1,7 @@
+---
+#gopath: "{{ lookup('env','GOPATH') }}"
+
+
+kiosk_username: mirror
+kiosk_url: 'http://localhost:8080'
+

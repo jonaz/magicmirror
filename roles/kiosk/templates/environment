@@ -1,0 +1,5 @@
+#{{ansible_managed}}
+
+{% for row in env | default([]) %}
+{{ row.key }}={{row.value}}
+{% endfor %}
