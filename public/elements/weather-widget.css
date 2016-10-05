@@ -26,10 +26,14 @@ div {
 {
 	position: relative;
 	display: inline-block;
-	font-size: 20px;
+	font-size: 35px;
 	padding-left: 10px;
 	padding-right: 10px;
 	font-weight: 100;
+}
+
+.font-small {
+	font-size:12px;
 }
 
 #container {

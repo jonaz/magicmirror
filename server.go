@@ -3,6 +3,7 @@ package main
 import (
 	//"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -70,7 +71,7 @@ func main() {
 }
 
 // do periodical stuff and push over websocket to all.
-func initPeriodicalPush() { // {{{
+func initPeriodicalPush() {
 	//this runs doPerdoPeriodicalStuff() every 15 minutes!
 	ticker := time.NewTicker(15 * time.Minute)
 	quit := make(chan struct{})
@@ -85,17 +86,17 @@ func initPeriodicalPush() { // {{{
 			}
 		}
 	}()
-}                          // }}}
-func doPeriodicalStuff() { // {{{
+}
+func doPeriodicalStuff() {
 	clients.messageOtherClients(&Message{"temp", getTemp()})
 	clients.messageOtherClients(&Message{"sunset", getSun("set")})
 	clients.messageOtherClients(&Message{"sunrise", getSun("rise")})
 	clients.messageOtherClients(&Message{"weather", getSmhi()})
 	//clients.messageOtherClients(&Message{"calendarEvents", getEvents(6)})
-} // }}}
+}
 
 //Download temp from temperatur.nu.
-func getTemp() string { // {{{
+func getTemp() string {
 	resp, err := http.Get("http://www.temperatur.nu/termo/soder/termo.txt")
 
 	if err != nil {
@@ -109,10 +110,10 @@ func getTemp() string { // {{{
 	temp3 := strings.Split(temp2[1], "&")
 
 	return temp3[0]
-} // }}}
+}
 
 //sunset/runrise
-func getSun(p string) string { // {{{
+func getSun(p string) string {
 
 	var t time.Time
 	switch p {
@@ -135,30 +136,32 @@ func getSun(p string) string { // {{{
 	ti := padHour + strconv.Itoa(t.Hour()) + ":" + padMinute + strconv.Itoa(t.Minute())
 	return ti
 	//return "{\"type\":\"sunset\",\"value\":\"" + ti + "\"}"
-} // }}}
+}
 
 //Weather from SMHI
-type day struct { // {{{
-	Max     float64 `json:"max"`
-	Min     float64 `json:"min"`
-	Day     string  `json:"day"`
-	Weather int     `json:"weather"`
-	Cloud   int     `json:"cloud"`
+type day struct {
+	Max           float64 `json:"max"`
+	Min           float64 `json:"min"`
+	Day           string  `json:"day"`
+	Weather       int     `json:"weather"`
+	Cloud         int     `json:"cloud"`
+	Precipitation string  `json:"precipitation"`
 }
 
 type response struct {
-	Days    []day   `json:"days"`
-	WindMax float64 `json:"windmax"`
-	WindMin float64 `json:"windmin"`
-	Weather int     `json:"weather"`
-	Cloud   int     `json:"cloud"`
+	Days          []day   `json:"days"`
+	WindMax       float64 `json:"windmax"`
+	WindMin       float64 `json:"windmin"`
+	Weather       int     `json:"weather"`
+	Cloud         int     `json:"cloud"`
+	Precipitation string  `json:"precipitation"`
 }
 
-func getSmhi() response { // {{{
+func getSmhi() response {
 	//we will get weather for the next 6 days including today.
 	days := make([]day, 6)
 	today := time.Now()
-	resp := response{days, 0, 0, 0, 0}
+	resp := response{Days: days}
 	smhi := gosmhi.New()
 	smhiResponse := smhi.GetByLatLong("56.8769", "14.8092")
 
@@ -166,6 +169,7 @@ func getSmhi() response { // {{{
 	resp.WindMax, _ = smhiResponse.GetMaxWindByDate(today)
 	resp.Weather = smhiResponse.GetPrecipitationByHour(today)
 	resp.Cloud = smhiResponse.GetTotalCloudCoverageByHour(today)
+	resp.Precipitation = fmt.Sprintf("%.1f", smhiResponse.GetMeanPrecipitationByDate(today))
 
 	for key, _ := range days {
 		days[key].Day = today.Weekday().String()
@@ -173,8 +177,8 @@ func getSmhi() response { // {{{
 		days[key].Min, _ = smhiResponse.GetMinTempByDate(today)
 		days[key].Weather = smhiResponse.GetPrecipitationByDate(today)
 		days[key].Cloud = smhiResponse.GetTotalCloudCoverageByDate(today)
+		days[key].Precipitation = fmt.Sprintf("%.1f", smhiResponse.GetMeanPrecipitationByDate(today))
 		today = today.Add(24 * time.Hour)
 	}
 	return resp
-} // }}}
-// }}}
+}

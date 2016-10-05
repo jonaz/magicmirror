@@ -40,8 +40,12 @@
 				<tr style$="{{calculateOpacity(index)}}">
 				<td class="day">{{ formatDay(item.day) }}</td>
 				<td><span class$="{{ formatWeatherIcon(item)}}"></span></td>
-				<td class="temp-max">{{item.max}}</td>
-				<td class="temp-min">{{item.min}}</td>
+				<td class="temp-max">{{item.max}}°<br>{{item.min}}°</td>
+				<td class="temp-min">
+					<template is="dom-if" if="{{!isZeroitemPrecipitation(item.precipitation)}}">
+						{{item.precipitation}}<span class="font-small">mm</span>
+					</template>
+				</td>
 			</tr>
 			
 			</template>
@@ -175,7 +179,7 @@
 
 			},
 			formatDay: function(day){
-				console.log(day); 
+				//console.log(day);
 				if(day === undefined){
 					return;
 				}
@@ -190,6 +194,12 @@
 				weekday['Sun'] = "Sön";
 
 				return weekday[day];
+			},
+			isZeroitemPrecipitation: function(p){
+				if(p === '0.0'){
+					return true;
+				}
+				return false;
 			}
 		});
 
