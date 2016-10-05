@@ -37,11 +37,12 @@ func run(){
 
 	scanner := bufio.NewScanner(stdout)
 	go func() {
+		t := ""
 		re := regexp.MustCompile(`\d+%`)
 		dur, _ := time.ParseDuration("-1m")
 		onTime := time.Now().Add(dur)
 		for scanner.Scan() {
-			t := scanner.Text()
+			t = scanner.Text()
 			//fmt.Println(t)
 			matches := re.FindAllString(t, -1)
 			
@@ -68,14 +69,15 @@ func run(){
 				}
 			}
 		}
+		log.Println(t)
 	}()
 
 	if err := cmd.Start(); err != nil {
-		log.Println(err)
+		log.Println("error starting", err)
 	}
 
 	if err := cmd.Wait(); err != nil {
-		log.Println(err)
+		log.Println("Error waiting", err)
 	}
 }
 
