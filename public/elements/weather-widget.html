@@ -40,8 +40,8 @@
 				<tr style$="{{calculateOpacity(index)}}">
 				<td class="day">{{ formatDay(item.day) }}</td>
 				<td><span class$="{{ formatWeatherIcon(item)}}"></span></td>
-				<td class="temp-max">{{item.max}}°<br>{{item.min}}°</td>
-				<td class="temp-min">
+				<td class="t-right min-max">{{item.max}}°<br>{{item.min}}°</td>
+				<td >
 					<template is="dom-if" if="{{!isZeroitemPrecipitation(item.precipitation)}}">
 						{{item.precipitation}}<span class="font-small">mm</span>
 					</template>

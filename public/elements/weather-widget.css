@@ -54,9 +54,12 @@ div {
 .forecast table td {
 	text-align:left;
 }
-.forecast table td.temp-min {
+.forecast table td.t-right {
 	text-align:right;
 }
 .forecast table td.icon-small {
 	text-align:center;
+}
+.forecast table td.min-max {
+	font-size:20px;
 }
