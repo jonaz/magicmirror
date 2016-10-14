@@ -19,6 +19,8 @@
     - chromium 
     - i3-wm 
     - unclutter
+    - bash-completion
+    - alsa-utils
 
 - name: template bash_profile
   template: src=bash_profile dest=/home/{{kiosk_username}}/.bash_profile owner={{kiosk_username}} group={{kiosk_username}}
@@ -31,6 +33,9 @@
 
 - name: template i3-config
   template: src=i3config dest=/home/{{kiosk_username}}/.config/i3/config owner={{kiosk_username}} group={{kiosk_username}}
+
+- name: create autologin config director
+  file: path="/etc/systemd/system/getty@tty1.service.d/" state=directory recurse=yes
 
 - name: template autologin
   template: 

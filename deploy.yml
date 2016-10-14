@@ -21,3 +21,8 @@
             #{ key: CONFIG_WEBROOT ,value: 'public' },
         #]
       }
+    - { role: go-app,
+        app: 'detectsound',
+        url: 'github.com/jonaz/magicmirror/detectsound',
+        tags: ['detectsound']
+      }

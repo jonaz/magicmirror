@@ -20,6 +20,9 @@
 - name: Create user
   user: name={{app}} group={{app}}
 
+- name: add user to audio group
+  user: name={{app}} groups=audio append=yes
+
 - name: Copy application to server
   copy: src={{ gopath }}/src/{{url}}/{{app}} dest=/usr/local/bin owner={{app}} group={{app}} mode=755
   notify: restart
@@ -29,7 +32,6 @@
   become_user: false
   synchronize: src={{gopath}}/src/{{url}}/{{static}} dest="/home/{{app}}/"
   when: static is defined
-  with_items: "{{ static }}"
 
 - stat: path=/etc/systemd/system
   register: systemd_dir
