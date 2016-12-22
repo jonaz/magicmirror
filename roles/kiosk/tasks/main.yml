@@ -46,3 +46,5 @@
 
 - name: template /boot/config.txt
   template: src=config.txt dest=/boot/config.txt
+
+# TODO add this to fstab: /dev/mmcblk0p2  /       ext4    defaults,noatime,discard        0       1

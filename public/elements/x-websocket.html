@@ -142,9 +142,9 @@
 				_onwsclose: function(e) {
 					this._ws = null;
 					this.fire("error", { code: e.code, reason: e.reason });
-					if(e.code === 1001){
+					//if(e.code === 1001){
 						this._reconnect();
-					}
+					//}
 				},
 				_reconnect: function(){
 					var self = this;
