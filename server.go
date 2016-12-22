@@ -2,6 +2,7 @@ package main
 
 import (
 	//"encoding/json"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -12,10 +13,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/beatrichartz/martini-sockets"
 	"github.com/go-martini/martini"
 	"github.com/jonaz/astrotime"
 	"github.com/jonaz/gosmhi"
+	"github.com/olahol/melody"
 )
 
 var Shutdown = make(chan bool)
@@ -27,12 +28,17 @@ func main() {
 	flag.Parse()
 	initOauth()
 
-	clients = newClients()
+	//clients = newClients()
 
 	m := martini.Classic()
+	mel := melody.New()
+
+	mel.HandleConnect(func(s *melody.Session) {
+		doPeriodicalStuff(mel)
+	})
 
 	gracefulShutdown := NewGracefulShutdown(10 * time.Second)
-	gracefulShutdown.RunOnShutDown(clients.disconnectAll)
+	gracefulShutdown.RunOnShutDown(mel.Close)
 	m.Use(gracefulShutdown.Handler)
 
 	//limiter := &ConnectionLimit{limit: 2}
@@ -41,12 +47,21 @@ func main() {
 	m.Get("/", func() string {
 		return "Hello world!"
 	})
-	m.Get("/control/:action", sendOnWs)
+	m.Get("/control/:action", func(p martini.Params) {
+		if val, err := json.Marshal(&Message{p["action"], nil}); err != nil {
+			mel.Broadcast(val)
+		}
+		//clients.messageOtherClients(&Message{p["action"], nil})
+	})
 	m.Get("/getsmhi", getSmhi)
 	m.Get("/api/sun", func() string {
 		return getSun("rise") + getSun("set")
 	})
-	m.Get("/websocket", sockets.JSON(Message{}), websocketRoute)
+	//m.Get("/websocket", sockets.JSON(Message{}), websocketRoute)
+	m.Get("/websocket", func(w http.ResponseWriter, r *http.Request) {
+		doPeriodicalStuff(mel)
+		mel.HandleRequest(w, r)
+	})
 
 	//OAUTH2
 	m.Get("/oauthsetup", handleSetupOauth)
@@ -56,7 +71,7 @@ func main() {
 		return getEvents(6)
 	})
 
-	initPeriodicalPush()
+	initPeriodicalPush(mel)
 
 	go func() {
 		m.RunOnAddr(":" + *port)
@@ -71,7 +86,7 @@ func main() {
 }
 
 // do periodical stuff and push over websocket to all.
-func initPeriodicalPush() {
+func initPeriodicalPush(mel *melody.Melody) {
 	//this runs doPerdoPeriodicalStuff() every 15 minutes!
 	ticker := time.NewTicker(15 * time.Minute)
 	quit := make(chan struct{})
@@ -79,7 +94,7 @@ func initPeriodicalPush() {
 		for {
 			select {
 			case <-ticker.C:
-				doPeriodicalStuff()
+				doPeriodicalStuff(mel)
 			case <-quit:
 				ticker.Stop()
 				return
@@ -87,11 +102,23 @@ func initPeriodicalPush() {
 		}
 	}()
 }
-func doPeriodicalStuff() {
-	clients.messageOtherClients(&Message{"temp", getTemp()})
-	clients.messageOtherClients(&Message{"sunset", getSun("set")})
-	clients.messageOtherClients(&Message{"sunrise", getSun("rise")})
-	clients.messageOtherClients(&Message{"weather", getSmhi()})
+func doPeriodicalStuff(mel *melody.Melody) {
+	if val, err := json.Marshal(&Message{"temp", getTemp()}); err == nil {
+		mel.Broadcast(val)
+	}
+	if val, err := json.Marshal(&Message{"sunset", getSun("set")}); err == nil {
+		mel.Broadcast(val)
+	}
+	if val, err := json.Marshal(&Message{"sunrise", getSun("rise")}); err == nil {
+		mel.Broadcast(val)
+	}
+	if val, err := json.Marshal(&Message{"weather", getSmhi()}); err == nil {
+		mel.Broadcast(val)
+	}
+	//clients.messageOtherClients(&Message{"temp", getTemp()})
+	//clients.messageOtherClients(&Message{"sunset", getSun("set")})
+	//clients.messageOtherClients(&Message{"sunrise", getSun("rise")})
+	//clients.messageOtherClients(&Message{"weather", getSmhi()})
 	//clients.messageOtherClients(&Message{"calendarEvents", getEvents(6)})
 }
 
@@ -158,12 +185,24 @@ type response struct {
 }
 
 func getSmhi() response {
+	response, err := fetchSmhi()
+	if err != nil {
+		log.Println(err)
+		return response
+	}
+
+	return response
+}
+func fetchSmhi() (response, error) {
 	//we will get weather for the next 6 days including today.
 	days := make([]day, 6)
 	today := time.Now()
 	resp := response{Days: days}
 	smhi := gosmhi.New()
-	smhiResponse := smhi.GetByLatLong("56.8769", "14.8092")
+	smhiResponse, err := smhi.GetByLatLong("56.8769", "14.8092")
+	if err != nil {
+		return resp, err
+	}
 
 	resp.WindMin, _ = smhiResponse.GetMinWindByDate(today)
 	resp.WindMax, _ = smhiResponse.GetMaxWindByDate(today)
@@ -171,7 +210,7 @@ func getSmhi() response {
 	resp.Cloud = smhiResponse.GetTotalCloudCoverageByHour(today)
 	resp.Precipitation = fmt.Sprintf("%.1f", smhiResponse.GetMeanPrecipitationByDate(today))
 
-	for key, _ := range days {
+	for key := range days {
 		days[key].Day = today.Weekday().String()
 		days[key].Max, _ = smhiResponse.GetMaxTempByDate(today)
 		days[key].Min, _ = smhiResponse.GetMinTempByDate(today)
@@ -180,5 +219,5 @@ func getSmhi() response {
 		days[key].Precipitation = fmt.Sprintf("%.1f", smhiResponse.GetMeanPrecipitationByDate(today))
 		today = today.Add(24 * time.Hour)
 	}
-	return resp
+	return resp, nil
 }
